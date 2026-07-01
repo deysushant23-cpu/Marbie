@@ -1,0 +1,599 @@
+{
+  "products": [
+    {
+      "id": 109,
+      "name": "Emerald Ruby Jhumka Earrings",
+      "category": "earrings",
+      "subcategory": "EARRINGS • Gold",
+      "price": 1500,
+      "image": "/images/1782357720332-993012898-Close-up_luxury_product_photography_of_2026062320222.jpeg",
+      "isExclusive": false,
+      "sku": "MBJ-EAR-001",
+      "stock": 5,
+      "description": "Shop elegant emerald and ruby stone jhumka earrings with pearl accents and chain tassels. Perfect for weddings, festivals, parties, and ethnic wear.\n",
+      "dimensions": "5cm x 3cm",
+      "weight": "15g",
+      "colors": [
+        {
+          "name": "Emerald",
+          "hex": "#3a8853"
+        }
+      ],
+      "originalPrice": 2499
+    },
+    {
+      "id": 110,
+      "name": "Blossom pendent Necklace",
+      "category": "necklaces",
+      "subcategory": "NECKLACES • Gold",
+      "price": 0,
+      "image": "/images/1782478379968-102790339-Neckles1.png",
+      "isExclusive": false,
+      "sku": "MJ-NCK-001",
+      "stock": 2,
+      "description": "Pink Blossom Anti-Tarnish Pendant Necklace  Delicate, feminine, and effortlessly elegant, this Pink Blossom Pendant Necklace is designed to add a graceful touch to your everyday style. Featuring a charming flower pendant with soft blush pink enamel petals, a sparkling crystal center, and shimmering pavé leaves, this piece beautifully symbolizes beauty, joy, and new beginnings.",
+      "dimensions": "5cm x 3cm",
+      "weight": "8g",
+      "images": [
+        "/images/1782478389225-79969901-neckles1V.mp4"
+      ]
+    },
+    {
+      "id": 111,
+      "name": "Blue Tulip Anti-Tarnish Pendant Necklace",
+      "category": "necklaces",
+      "subcategory": "NECKLACES • Gold",
+      "price": 0,
+      "image": "/images/1782480628950-986976975-Neckles2.png",
+      "isExclusive": false,
+      "sku": "MJ-NCK-002",
+      "stock": 2,
+      "description": "Inspired by the elegance of blooming tulips, this *Blue Tulip Pendant Necklace* from *Marbie Jewels* is a timeless piece designed to add effortless sophistication to your jewellery collection. Featuring a delicate blue enamel tulip accented with sparkling cubic zirconia and a graceful gold-tone stem, this pendant beautifully symbolizes love, hope, and new beginnings.\n",
+      "dimensions": "5cm x 3cm",
+      "weight": "10g",
+      "images": [
+        "/images/1782480764167-773114230-Nekles2_.PNG",
+        "/images/1782480864679-465348638-Neckles2v.MP4"
+      ]
+    },
+    {
+      "id": 112,
+      "name": "Swan Anti-Tarnish Pendant Necklace",
+      "category": "necklaces",
+      "subcategory": "NECKLACES • Gold",
+      "price": 0,
+      "image": "/images/1782481307260-691407921-Neckles3.png",
+      "isExclusive": false,
+      "sku": "MJ-NCK-003",
+      "stock": 2,
+      "description": "Graceful, elegant, and timeless, the *Swan Pendant Necklace* from *Marbie Jewels* is designed to add effortless sophistication to your jewellery collection. Featuring a beautifully crafted swan adorned with sparkling AAA cubic zirconia and blush pink stones, this pendant symbolizes love, purity, and elegance.\n",
+      "dimensions": "5cm x 3cm",
+      "weight": "15g",
+      "images": [
+        "/images/1782481318364-143609987-neckles3V.mp4"
+      ]
+    },
+    {
+      "id": 113,
+      "name": "Heart Swan Necklace",
+      "category": "necklaces",
+      "subcategory": "NECKLACES • Gold",
+      "price": 0,
+      "image": "/images/1782486510023-854744247-neckles4.png",
+      "isExclusive": false,
+      "sku": "MJ-NCK-004",
+      "stock": 2,
+      "description": "Graceful and timeless, our *Heart Swan Necklace* features an elegant swan-shaped pendant adorned with sparkling zircon stones and a vibrant green crystal accent. Crafted with a premium *anti-tarnish gold-plated finish*, this lightweight necklace is designed to stay shiny, fade-resistant, and perfect for everyday elegance or special occasions.\n",
+      "dimensions": "5cm x 3cm",
+      "weight": "15g",
+      "images": [
+        "/images/1782486526081-569824776-neckles4_.PNG",
+        "/images/1782486536824-625687351-neckles4V.mp4"
+      ]
+    },
+    {
+      "id": 114,
+      "name": "Butterfly Charm Anti-Tarnish Necklace",
+      "category": "necklaces",
+      "subcategory": "NECKLACES • Gold",
+      "price": 0,
+      "image": "/images/1782487296012-145299479-neckles5.png",
+      "isExclusive": false,
+      "sku": "MJ-NCK-005",
+      "stock": 2,
+      "description": "Delicate, elegant, and effortlessly charming, this *Butterfly Charm Necklace* adds a graceful touch to any look. Featuring a sparkling butterfly pendant adorned with blush pink and crystal stones on a sleek gold-tone chain, it's the perfect accessory for everyday wear or special occasions. Crafted with a premium *anti-tarnish finish*, this necklace is designed to retain its shine and beauty over time.",
+      "dimensions": "5cm x 3cm",
+      "weight": "15g",
+      "images": [
+        "/images/1782487305685-465564482-neckles5V.mp4",
+        "/images/1782487372932-459061045-neckles5_.PNG"
+      ]
+    }
+  ],
+  "orders": [],
+  "customers": [
+    {
+      "id": 1,
+      "name": "Eleanor Vance-St. Clair",
+      "email": "e.vance@stclair-estates.com",
+      "joinDate": "Oct 12, 2023",
+      "totalOrders": 14,
+      "lifetimeSpend": 42850,
+      "tier": "VIP EMERALD",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAUId3BINP6XMBQtqff5vMCFYLV8uxKSOL1VESlAxYMf9NXrshh-iUveu5pPSWinlMDNk4Nso2JIC6cJxk_AT-EXeagBtSoLu1zphDNdwfOt5JNkGg5KOrt0LYMoh-WwWhKvSX9CVDROUfMOeKJgvzdohye-a8iCaI-28TXyXcK_DSpbw51yge0DHFL84QnX1kCSrx4gEBQ7wcPumX-jNfpmRC7TdNa1iUI4E-zunPstri9RTGf-6CAELbYeW_GGxYZY96WLI8dz7eq"
+    },
+    {
+      "id": 2,
+      "name": "Julian Thorne",
+      "email": "j.thorne@private-equity.io",
+      "joinDate": "Jan 05, 2024",
+      "totalOrders": 6,
+      "lifetimeSpend": 18200,
+      "tier": "GOLD TIER",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCJyOZ7v-JzHzZoCvZyafev-EBqRcT0aI74PhNdhUvtahjiuLQ6Nj5THdbSf9YhkdWf8C0mIwHw790Tva0kE6UVYZJ36z6d4osh2k8B6G2UFS38jYoj8vMj_j1Xufpi_WqbwCN5FkIqtBdzSsOq_65a4-ovH_K4Q6RQf-BZTBanO0jjMq6hU7wsllhBs96_rSCNcA-Vs87pRaHLzvfr1bd_FoqxbTfF9Ig24ruEkt28Bw2X30k3HZgCv3YsZ9wTaRYGxG5l74lRN2zy"
+    },
+    {
+      "id": 3,
+      "name": "Seraphina Rossi",
+      "email": "s.rossi@milan-design.it",
+      "joinDate": "Mar 22, 2024",
+      "totalOrders": 2,
+      "lifetimeSpend": 5400,
+      "tier": "COLLECTOR",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuB5pHAA5U0za937TtBwCACyHhtNIf6xmo1r8YbGXRa2tkvijVGmAYs3eg1WTh2SHlEDaBpOji0dDh4oW1bBmYgGI4K8SlilOTiCM_osNixDye1qEEI1BE8BZtM2EkQzd5tYwbQz6BPSDD-65RhX5HelZXQNmI6JONHUGR3Av4xP3JFlGNrTNyP96ZqQyYup8X6snCR-Vg5wJPwM1xPdrDbH4ah92GuJtXtqZFiQbYpuVJaw64pp8P3ipGL7NSZ3Np9wQI495RrwzRyF"
+    },
+    {
+      "id": 4,
+      "name": "Alaric Montesque",
+      "email": "montesque.art@galerie.fr",
+      "joinDate": "Nov 30, 2023",
+      "totalOrders": 28,
+      "lifetimeSpend": 89720,
+      "tier": "VIP EMERALD",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCQaUYhnqwiRCXGXMk0hin_Ibs1mxFJDMm89-zOFzTxgEO44P1EoyR9VYnbx8yWYPOPSIRnKjk5ml9iLUjIUTNiU1_MDjY3F2yWUdWv-9IwnIffPwky9kcYLFTHyD83-MlEcjRkmzYHRBaclWet6NrUoOHbYfC5YNp2-UGf5fYS0y74gXNWtJammI4pNy9RQLYrMC-BGD0jMfwjH3r6dCkj_gVUerXGEI951srSCJwuUGOmiV4zEHBNIgSNpmY-emy6eHB4FeQfXIdI"
+    },
+    {
+      "id": 5,
+      "name": "Lady Beatrice Halloway",
+      "email": "beatrice.h@halloway-estate.uk",
+      "joinDate": "Feb 14, 2024",
+      "totalOrders": 9,
+      "lifetimeSpend": 27150,
+      "tier": "GOLD TIER",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCh6Dxopyao9Pgmm0rcYi6fuhXxvsafrOFC1BeG9fNbz-NmpiH0PqO8AqKIOoQSYuhxlvS4k_SVbszU7M-h8k9Ay4M3dNQEsbzDTAc3xUoW1MDtdOtUv7brdYOmxbvG5c0R3qZe9yWn9NnAZAa7c_dteZp51lDt68Tq-NhCOVSVzNDytVYbuyyMw25UVQYYBZV8lDS1WZ8KGmyWSMOaQH6UqHmmOWmx4kGgHhpnZKIUVL0EV2-twaenmnIJTjmDH2bQVCgPziJvrtLR"
+    }
+  ],
+  "reviews": [
+    {
+      "id": 101,
+      "title": "Perfect wedding jewelry!",
+      "author": "Aarti",
+      "time": "2 days ago",
+      "rating": 5,
+      "content": "Thank you so much, Team Marbie Jewels! I'm absolutely loving my bridal jewellery - it added the perfect touch to my wedding look. The quality and design exceeded my expectations, and I'm so happy to have chosen your brand.",
+      "product": "Aurora Gold Ring",
+      "verified": true,
+      "image": "/images/Beautiful_Indian_woman_with_soft_202606232200.jpeg"
+    },
+    {
+      "id": 102,
+      "title": "Compliments guaranteed!",
+      "author": "Shreshtha",
+      "time": "1 week ago",
+      "rating": 5,
+      "content": "I bought a choker set and earrings from Marbie, and they were just perfect for my Haldi look. I got so many compliments! And the best part, even after a full pool session, they're still perfect and haven't tarnished till date.",
+      "product": "Verdant Drops",
+      "verified": true,
+      "image": "/images/zoom_of_Beautiful_Indian_woman_202606232030 (1).jpeg"
+    },
+    {
+      "id": 103,
+      "title": "Exquisite detailing",
+      "author": "Ayushi",
+      "time": "2 weeks ago",
+      "rating": 5,
+      "content": "It gave my festive outfit a beautiful uplift, adding both sophistication and traditional warmth. The detailing is exquisite and matched the festive vibe perfectly. So happy with how it turned out in pictures and in person!",
+      "product": "Lumina Bracelet",
+      "verified": true,
+      "image": "/images/zoom_of_Beautiful_Indian_woman_202606232030 (2).jpeg"
+    },
+    {
+      "id": 104,
+      "title": "Stunning craftsmanship",
+      "author": "Wamiqa",
+      "time": "3 weeks ago",
+      "rating": 5,
+      "content": "The Kundan work is royal and lightweight. I wore this suite for my reception for over 8 hours without any discomfort. Absolutely worth every rupee!",
+      "product": "Essence Chain",
+      "verified": true,
+      "image": "/images/WhatsApp Image 2026-06-23 at 23.11.23.jpeg"
+    },
+    {
+      "id": 105,
+      "title": "Loved by everyone",
+      "author": "Ashnoor",
+      "time": "1 month ago",
+      "rating": 5,
+      "content": "Such a breathtaking design. The gold plating looks truly rich and pure. Customer support was also very helpful with express shipping.",
+      "product": "Aurora Gold Ring",
+      "verified": true,
+      "image": "/images/WhatsApp Image 2026-06-25 at 15.32.38.jpeg"
+    }
+  ],
+  "config": {
+    "heroCarouselRatio": "default",
+    "featuredProductIds": [
+      "108",
+      "107",
+      "9",
+      "14"
+    ],
+    "productCategories": [
+      "Rings",
+      "Chain",
+      "Oxidised-jewellery",
+      "Gift_Box"
+    ],
+    "labels": {
+      "categorySection": {
+        "title": "Shop by Category",
+        "exploreText": "EXPLORE COLLECTION"
+      },
+      "arrivalsSection": {
+        "title": "New Arrivals",
+        "subtitle": "Hand-selected pieces from our latest curation.",
+        "viewAllText": "VIEW ALL PIECES",
+        "viewAllLink": "/necklaces"
+      },
+      "bestSellersSection": {
+        "title": "Best Selling Suites",
+        "subtitle": "Our most coveted pieces loved by over 50,000+ brides."
+      },
+      "exclusiveStealsSection": {
+        "title": "Exclusive Bridal Steals",
+        "subtitle": "Statement Kundan & Polki sets crafted for royalty."
+      },
+      "reviewsSection": {
+        "title": "REAL ROYAL BRIDES"
+      },
+      "instagramSection": {
+        "handle": "@MARBIE_JEWELRY",
+        "shopNowText": "Shop Now"
+      },
+      "heroButtons": {
+        "primary": "Shop the Collection",
+        "primaryLink": "/necklaces",
+        "secondary": "VIEW LOOKBOOK",
+        "secondaryLink": "/lookbook"
+      },
+      "productDetail": {
+        "loadingText": "Preparing Masterpiece...",
+        "fallbackDesc": "An exquisite piece crafted with unparalleled attention to detail. Designed for the modern aesthete who appreciates heritage craftsmanship and timeless elegance.",
+        "addToBag": "ADD TO BAG",
+        "valueProps": [
+          {
+            "icon": "local_shipping",
+            "text": "Free Shipping"
+          },
+          {
+            "icon": "autorenew",
+            "text": "7-Day Returns"
+          }
+        ]
+      },
+      "auth": {
+        "loginSubtitle": "Sign in to your account"
+      }
+    },
+    "marketing": {
+      "marqueeText": "✧ OVER 50,000+ ROYAL BRIDES STYLED GLOBALLY • TRUSTED BY TOP CELEBRITY STYLISTS • 100% ROYAL INDIAN CRAFTSMANSHIP • LIFETIME GOLD PLATING GUARANTEE • EXPRESS FREE INSURED SHIPPING ✧ OVER 50,000+ ROYAL BRIDES STYLED GLOBALLY • TRUSTED BY TOP CELEBRITY STYLISTS • 100% ROYAL INDIAN CRAFTSMANSHIP • LIFETIME GOLD PLATING GUARANTEE ✧",
+      "lookbookStyle": "carousel",
+      "instagramStyle": "portrait",
+      "offersTitle": "OFFERS",
+      "offers": [
+        {
+          "id": "offer-1",
+          "title": "Summer Bridal Steals",
+          "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBCiszRq5LNv5_06qoHu5y0glWLWVdZFWWnWug4_HzcsHjoNfQiGjnoIRv2HQRRXCRJxfJobyX7XVZ6u__BigftYGOz27MY2TV6pOX3hlObr4wgmqEQoC7ornVSjWZUqsI22odDzbZ6dtUW3q490DzPW9J17JV7Imao5L1RYU9y95U0JhVZCc9IEE3Z269ViUUNDWxJXSG_s-4BkljJQZjgma1iziyNTp83HvT6naXjn5oFPxTbVmmjnCNXLdTJn6_8sM25V_sV661g",
+          "link": "/necklaces"
+        },
+        {
+          "id": "offer-2",
+          "title": "Royal Kundan Suites",
+          "image": "/images/lookbook_hero.png",
+          "link": "/bracelets"
+        }
+      ],
+      "uspCards": [
+        {
+          "title": "FREE EXPRESS SHIPPING",
+          "desc": "On all insured orders across India & Globe.",
+          "icon": "local_shipping"
+        },
+        {
+          "title": "LIFETIME PLATING WARRANTY",
+          "desc": "100% Gilded Gold & Kundan Craftsmanship.",
+          "icon": "verified_user"
+        },
+        {
+          "title": "100% SECURE CHECKOUT",
+          "desc": "Encrypted Online Payments & COD Available.",
+          "icon": "lock"
+        },
+        {
+          "title": "EASY CONCIERGE RETURNS",
+          "desc": "Hassle-free exchanges and bridal support.",
+          "icon": "published_with_changes"
+        }
+      ],
+      "hero": {
+        "title": "Timeless Elegance,\nCrafted for You",
+        "subtitle": "LUXURY REDEFINED",
+        "description": "Discover our exquisite collection of handcrafted heritage pieces. Sophistication begins at ₹500."
+      },
+      "promise": {
+        "title": "The Marbie Promise",
+        "label": "OUR HERITAGE",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDES4KjVItB3W5oVaAx-a9UonP_vkq6TA0L0ObgAAlmfX5ZDbToeo-CPlvMr04qWL3G4bikHNJ_HtIQiGdNUovfXiNmxyqFIQ8UjfdfilWObeepuIfO3ck80Q_ibAxWjpItbXJYJKairNJyp7dOuIK0TZK08iiiL2sahteIgqhhXp40xwvTV7HBs_CJKJ611ZAkCGZ3qQSr2CmrWrMAEI1bgAG8PD0wi9AcahiLS2BitosJNdWzMYmw8xvr-YJ8lMWmmY04YpXY03j1",
+        "items": [
+          {
+            "title": "Uncompromising Purity",
+            "desc": "Every piece is hallmarked and certified for purity. We use only the finest 18k and 22k gold, ethically sourced and meticulously tested.",
+            "icon": "verified"
+          },
+          {
+            "title": "Artisan Craftsmanship",
+            "desc": "Our master craftsmen spend hundreds of hours on a single design, preserving traditional techniques while embracing modern precision.",
+            "icon": "brush"
+          },
+          {
+            "title": "Ethical Sourcing",
+            "desc": "We are committed to conflict-free gemstones and responsible mining practices, ensuring our luxury never costs the earth.",
+            "icon": "eco"
+          }
+        ]
+      },
+      "trousseauTitle": "THE ROYAL BRIDAL TROUSSEAU",
+      "trousseauSubtitle": "INTERACTIVE CURATION",
+      "trousseau": [
+        {
+          "id": "haldi",
+          "title": "Haldi & Mehndi",
+          "subtitle": "VIBRANT & SUN-KISSED",
+          "desc": "Lightweight Polki and pastel enamel jewelry designed to dance with turmeric yellows and henna greens.",
+          "image": "/images/zoom_of_Beautiful_Indian_woman_202606232030 (1).jpeg",
+          "highlight": "Gilded Polki Drops",
+          "price": "₹1600",
+          "link": "/earrings"
+        },
+        {
+          "id": "sangeet",
+          "title": "Sangeet Gala",
+          "subtitle": "GLIMMER & MOVEMENT",
+          "desc": "Statement diamond chokers and sparkling chandelier earrings crafted to catch the spotlight as you dance the night away.",
+          "image": "/images/WhatsApp Image 2026-06-23 at 23.11.23.jpeg",
+          "highlight": "Starlight Chandelier Suite",
+          "price": "₹799",
+          "link": "/necklaces"
+        },
+        {
+          "id": "wedding",
+          "title": "The Royal Wedding",
+          "subtitle": "HERITAGE KUNDAN SUITES",
+          "desc": "Majestic 22K gold-plated Kundan chokers, Mathapatti, and layered Rani Haars inspired by Rajasthani royal palaces.",
+          "image": "/images/Beautiful_Indian_woman_with_soft_202606232200.jpeg",
+          "highlight": "Maharani Kundan Haar",
+          "price": "₹1799",
+          "link": "/bridal"
+        },
+        {
+          "id": "reception",
+          "title": "Reception Soirée",
+          "subtitle": "CONTEMPORARY SOPHISTICATION",
+          "desc": "Sleek platinum finishes, emerald focal stones, and modern tennis bracelets for a red-carpet finish.",
+          "image": "/images/WhatsApp Image 2026-06-25 at 15.32.38.jpeg",
+          "highlight": "Imperial Emerald Cuff",
+          "price": "₹1299",
+          "link": "/bracelets"
+        }
+      ],
+      "instagram": [
+        {
+          "type": "video",
+          "url": "/images/1782311407591-351795077-Indian_earrings_on_beige_surface_202606241923.mp4",
+          "hidden": false,
+          "productId": "109"
+        },
+        {
+          "type": "image",
+          "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuCTlTADd2aCTNJdDMSJRJfhma7ozHcBZwvHapACm21sSJiICYf39MC_K6gyeBC4t2ts_m705W-bgddX5duR7ZvPTDNNNnqyemn2BFXF2jEU1DpFQVp7nWLjqtKbbwfUsvMF_xRTC9eMPYIW2lknvYX_-lWooIL7BJ8kW0ht5sMK5mkUPmE_YCdKjblvSy40QYUkEo2YI7huf9FeGflqQt3gHzGsCrJ6e_mhsk8HtYVxXWUVZ0fWq7DpX0UBd_4bera4efkN0g30W3k5"
+        },
+        {
+          "type": "image",
+          "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAB9l6MrJ7CRwRZAGwyyb_6dJ8ZFbVns3tgxciTPuucZxeiJL0_Dxb6toI93m9U3RpVo-yRaRkw3p7_f6lHsv1bvRVT_WKCePPORvNowk-Vq01jDl3lr5HlN0YdulX4yVNVJHQojVzV9v4cgsgEZkGKVjq-vCEJhOZSnJsgMftf05vJj_HFgn6fsyNlTC_F-Vm3_v3jAToInEEZLinwceSSNUPaTAh4AFBfouemXwINaH4t8jZzfTzHO3OKdWWHJelwfnY9SbbWVqG7"
+        },
+        {
+          "type": "image",
+          "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuB_ov12rZqhwu2zLWlzPkBYyRqH_XYauU0IhGXLm8t73nT1M-a35PDsd7Gd-fPIRASf8VbFBpuhDO-SSs2jJgjlqwPPtyaWDUtZhsb9IbafvHx2AVaUODVIXzOr7OB40E02qleKs-Qv8oEQ4cqzJy4chw-kQznWKmOequyZEoDS8uuw4rpY8o6atpVEUTyhsI16ewPEGsPZuO68iXHf_zGfU74kwXg4hKsJg5n9edyZzozGF24Wf_HVIKDrarhrSX85My6FlPxtQ4E_",
+          "hidden": false
+        },
+        {
+          "type": "image",
+          "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBk9__2TNR55yeaPoeQaR8DjDYwSmUutfzFfpDSFEBVmNM8HmUTigh2tUMlSHDAAVJC_BNCn7vmlt4N8l4qxI-rUOQ0RgmnLlZZQ9wn7pj7IobOpXZMh2dzcofl-bwjdI6PxHs_GNqn0RFqIeyUr6Z0PoSjrCwAojxxZQkvbN7_LU-9UhsVYyyAp4F_LhvMSphF68y5R81yPglSWXixS0W03EXXxSSSYhZcJsgn1tHTikMH_FOOrnn9xzL3et99lcG4QMLkqoHJwLPB",
+          "hidden": true
+        },
+        {
+          "type": "image",
+          "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBOQCEVhneEVrfWAPzroobkcwVS9FXFB9wRg6yePbgzo-xQCF05VjVevDMaaOom6lyq2NQz6apw2uB1TjJn33CATeiNXvZSO3LIOpvCsGPrTrSkmtgrVtQbdAW39Rjz5XWAw5mZ347gGtq3fqH1Mu2A1_uLz2dPQrGBpHVI-O6uJs8x-9JFA7T8Ut3zhJplxMnIR0wubn7T_evpvrFVudxy_e-UxeQ5bjNoIUrWb8qpyt8STPvahzhDurENM5jY0LeWKVv4Hde395nA",
+          "hidden": false
+        }
+      ]
+    },
+    "categories": [
+      {
+        "name": "Bracelets",
+        "slug": "bracelets",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCcIZXO82aWHKwgWbLCSx0uVJtIwMEw9sznR7JiZ_ZG1f0d6uiLC8iSPj_3u39wBB0r5z0O-JQxzzUI55yX2tTFslcPLhsoDf523TLoMJNDKt5wp3qhl0t5Hy5CVkTxWlGhMXXQDBOu2nPOXnkl7YFuOJVoziCb8P_6ldZ0wI8ZKhnUwydEkUoa8_u1lH6NlFwIsRvyp42ZCLKK_rPXzMiHT2vkobzr3JMmkTJlqlvHpnBvaTmUKkC3Oucv9fOaGOe_V8sZsrrfgWqS",
+        "allowedColors": []
+      },
+      {
+        "name": "Necklaces",
+        "slug": "necklaces",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCzW9PuEl6eWE-M3r3MlxJ3OTWayiBHnU56HMxbDj3fQE--qKG-W8GDWYiRS19CMTmFCm8SPON6xBddEgA8Yi0czVt68HcZ1DmAZiygSOVBV2_1uQbprJkAurSEB6HKlzGaWYNpVi_J0YztvOGzuK4KUkWvrg_rZPx43RxROa4poSEGdUz5J9r6BcuKDY8RVd0vz_N6zo5R2a5G5SARWM9QASaav2pxWdQQDSRjK_pufSv89h630ixt-Kd3f3CCG-7Xfez3CbpxA4Gw"
+      },
+      {
+        "name": "Earrings",
+        "slug": "earrings",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCU5GyugSuyr6C--PwVe1hM0gMwITQmzadOQ5tygnjMd5Zs-SY09oU50p9t3AQemU0q4OMnloyHYvIe4Mi48GAhCoSlOuzO5XdSSw0xcIP-opTGbUW_0xokqXN9P8hunm7o-e9ZyoL9rM-ochRk-nOk3jfewQgm6srCts-r7TUbrG4sdRzmsHpj_Rp-yDvSExhYS-tntX2jU1ic5aL5bie-Fz-Zw06kyaz8KPCgF9QumT3PMMaR90-L0wzAbXfE7HsN3Q8IDGr2hT_7"
+      },
+      {
+        "name": "Korean Jewelry",
+        "slug": "korean",
+        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuASqiSfToQfLYslZDiBNtAHzem1wtT7rMHyvKoBVPgr_sqccZ8UWFTTlGD7enhlZtLAInxiUdKBOjaHnHiJGaFPqXphiFGhU9s2s0mL1s75c7sii41Sigpq5RIWrfPtd7Y1jF4arCFiNAVkeT28dnCVb8f3zDWpMxUp1yjApcZLQKGR-rHQWtw1ciihK7yiuhVxocEwyasRaRUKGqDf9s4ECgGO0wSqcYawtRaB2i9G-12grz_ZjJM-Krwzs4h-yrPuEf4kwYCl9N-y"
+      },
+      {
+        "name": "Gifting",
+        "slug": "gifting",
+        "image": "https://lh3.googleusercontent.com/aida/AP1WRLvx8DnvsH0dNRTf4nWq1ZsDFzIm9cR2EXnqCgrBCWd-chPmTlpcPgX_ueIVduWkYUvcmhZ5XyPrfoGHDZN8ywWndmtsgvnSTCrCa1lRX5DtMrIUOPHzEksB44vfzHowlECdUSMVlpr9X9oarpP7hpVjdqcWJk1RLhgEo72e7Cozk2Z4Am-i3u_32_zFHL7lsoybAMDkua-MC7OZ9AsWg_u5puGMauGtbvF8fDuhtYZODirJQwYiHjV7fI8"
+      }
+    ],
+    "materials": [],
+    "navigation": {
+      "main": [
+        {
+          "name": "Bracelets",
+          "href": "/bracelets"
+        },
+        {
+          "name": "Necklaces",
+          "href": "/necklaces"
+        },
+        {
+          "name": "Korean Jewelry",
+          "href": "/korean"
+        },
+        {
+          "name": "Bridal",
+          "href": "/bridal"
+        },
+        {
+          "name": "Gifting",
+          "href": "/gifting"
+        }
+      ],
+      "support": [
+        {
+          "name": "Track Order",
+          "href": "/track-order"
+        },
+        {
+          "name": "Shipping & Returns",
+          "href": "/info/shipping-and-returns"
+        },
+        {
+          "name": "Care Guide",
+          "href": "/info/care-guide"
+        }
+      ],
+      "company": [
+        {
+          "name": "About Us",
+          "href": "/info/about-us"
+        },
+        {
+          "name": "Privacy Policy",
+          "href": "/info/privacy-policy"
+        },
+        {
+          "name": "Terms of Service",
+          "href": "/info/terms-of-service"
+        }
+      ],
+      "social": [
+        {
+          "icon": "public",
+          "href": "#"
+        },
+        {
+          "icon": "mail",
+          "href": "#"
+        },
+        {
+          "icon": "share",
+          "href": "#"
+        }
+      ]
+    },
+    "footer": {
+      "brandName": "Marbie jewels",
+      "description": "Crafting heritage jewelry for the modern woman who values understated elegance and timeless craftsmanship.",
+      "copyright": "© 2026 Marbie Fine Jewelry. All Rights Reserved."
+    },
+    "logoUrl": "",
+    "colors": [
+      {
+        "name": "black",
+        "hex": "#000000"
+      },
+      {
+        "name": "Perl Pink",
+        "hex": "#df8d93"
+      },
+      {
+        "name": "Emerald",
+        "hex": "#3a8853"
+      }
+    ],
+    "heroRatio": "tall"
+  },
+  "carousel": [
+    {
+      "id": 1,
+      "image": "/images/1782474557447-893730072-img_f4a16bfc7b.jpg",
+      "title": "Timeless Elegance",
+      "subtitle": "LUXURY REDEFINED",
+      "active": true
+    },
+    {
+      "id": 2,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCU5GyugSuyr6C--PwVe1hM0gMwITQmzadOQ5tygnjMd5Zs-SY09oU50p9t3AQemU0q4OMnloyHYvIe4Mi48GAhCoSlOuzO5XdSSw0xcIP-opTGbUW_0xokqXN9P8hunm7o-e9ZyoL9rM-ochRk-nOk3jfewQgm6srCts-r7TUbrG4sdRzmsHpj_Rp-yDvSExhYS-tntX2jU1ic5aL5bie-Fz-Zw06kyaz8KPCgF9QumT3PMMaR90-L0wzAbXfE7HsN3Q8IDGr2hT_7",
+      "title": "Bridal Collection",
+      "subtitle": "YOUR SPECIAL DAY",
+      "active": true
+    },
+    {
+      "id": 3,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuASqiSfToQfLYslZDiBNtAHzem1wtT7rMHyvKoBVPgr_sqccZ8UWFTTlGD7enhlZtLAInxiUdKBOjaHnHiJGaFPqXphiFGhU9s2s0mL1s75c7sii41Sigpq5RIWrfPtd7Y1jF4arCFiNAVkeT28dnCVb8f3zDWpMxUp1yjApcZLQKGR-rHQWtw1ciihK7yiuhVxocEwyasRaRUKGqDf9s4ECgGO0wSqcYawtRaB2i9G-12grz_ZjJM-Krwzs4h-yrPuEf4kwYCl9N-y",
+      "title": "New Arrivals",
+      "subtitle": "DISCOVER TRENDS",
+      "active": true
+    }
+  ],
+  "subscribers": [
+    {
+      "id": "sub-2",
+      "email": "ananya.sharma@gmail.com",
+      "date": "2026-06-22",
+      "status": "active"
+    },
+    {
+      "id": "sub-3",
+      "email": "priyanka.chopra@celeb.com",
+      "date": "2026-06-25",
+      "status": "active"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp-1",
+      "subject": "👑 Royal Summer Bridal Drop - Gilded Steals",
+      "banner": "https://lh3.googleusercontent.com/aida-public/AB6AXuBCiszRq5LNv5_06qoHu5y0glWLWVdZFWWnWug4_HzcsHjoNfQiGjnoIRv2HQRRXCRJxfJobyX7XVZ6u__BigftYGOz27MY2TV6pOX3hlObr4wgmqEQoC7ornVSjWZUqsI22odDzbZ6dtUW3q490DzPW9J17JV7Imao5L1RYU9y95U0JhVZCc9IEE3Z269ViUUNDWxJXSG_s-4BkljJQZjgma1iziyNTp83HvT6naXjn5oFPxTbVmmjnCNXLdTJn6_8sM25V_sV661g",
+      "title": "The Gilded Royal Summer Collection",
+      "body": "Dearest Royal Bride,\n\nWe are thrilled to unveil our exclusive summer curation of handcrafted Kundan and Polki masterpieces. Designed for Haldi soirées and grand wedding galas, each piece is gilded in 18K gold and hallmarked for purity.\n\nEnjoy complimentary VIP concierge express shipping on all orders this week.",
+      "ctaText": "EXPLORE THE ROYAL DROP",
+      "ctaLink": "http://localhost:3000/necklaces",
+      "date": "2026-06-24",
+      "recipients": 3
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Overrides (Implemented via User Request)
+   ========================================================================== */
+
+/* ---------------------------
+   TABLET (Max-width: 1023px) 
+   --------------------------- */
+@media (max-width: 1023px) {
+    .hero-title { font-size: 48px !important; line-height: 1.1 !important; }
+    .hero-subtitle { font-size: 16px !important; }
+    .section-heading, .section-title, h2 { font-size: 34px !important; }
+    .products-grid, .insta-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .ref-page-layout { grid-template-columns: 240px 1fr !important; }
+    .footer-content { flex-direction: column !important; gap: 40px !important; }
+    .footer-links { width: 100% !important; justify-content: space-between !important; }
+}
+
+/* ---------------------------
+   MOBILE (Max-width: 767px) 
+   --------------------------- */
+@media (max-width: 767px) {
+    .hide-on-mobile { display: none !important; }
+    .hero-title { font-size: 32px !important; line-height: 1.2 !important; }
+    .hero-subtitle { font-size: 14px !important; margin-bottom: 24px !important; }
+    .hero-cta { padding: 12px 24px !important; font-size: 14px !important; }
+    .section-heading, .section-title, h2 { font-size: 26px !important; line-height: 1.3 !important; }
+    
+    .products-grid, .insta-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .category-grid { grid-template-columns: 1fr !important; }
+    
+    .ref-page-layout { display: flex !important; flex-direction: column !important; }
+    .ref-sidebar { width: 100% !important; }
+    
+    .logo-text { font-size: 20px !important; }
+    
+    .cart-layout { grid-template-columns: 1fr !important; }
+    
+    .footer-links { flex-direction: column !important; gap: 24px !important; }
+    .footer-bottom { flex-direction: column !important; text-align: center !important; gap: 16px !important; }
+    
+    button, .icon-btn, input, select { min-height: 44px !important; }
+}

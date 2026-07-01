@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "bracelets",
+    "title": "Bracelets",
+    "description": "Adorn your wrists with our meticulously crafted bracelets, featuring delicate gold chains, stunning diamond tennis bracelets, and bold architectural cuffs designed for everyday elegance.",
+    "bannerImage": "/images/img_00bc2ca3fd.jpg",
+    "filterCategory": "Bracelet",
+    "allowedColors": [
+      "black"
+    ],
+    "heroRatio": "tall"
+  },
+  {
+    "slug": "necklaces",
+    "title": "Necklaces ",
+    "description": "Discover our collection of exquisite necklaces, from delicate everyday chains to breathtaking statement pieces crafted in 18k gold and platinum.",
+    "bannerImage": "/images/1782275786228-166801182-20594239-hd_1080_1920_60fps.mp4",
+    "filterCategory": "necklaces",
+    "heroRatio": "tall"
+  },
+  {
+    "slug": "korean",
+    "title": "Korean ",
+    "description": "Embrace the elegance of K-fashion with our minimalist jewelry collection. Delicate lines, subtle sparkle, and contemporary silhouettes.",
+    "bannerImage": "/images/img_ab1d2c137a.jpg",
+    "filterCategory": "korean"
+  },
+  {
+    "slug": "bridal",
+    "title": "Bridal",
+    "description": "Exquisite handcrafted royal bridal suites, Kundan chokers, and statement Polki heirlooms designed for your momentous celebration.",
+    "bannerImage": "https://lh3.googleusercontent.com/aida-public/AB6AXuCU5GyugSuyr6C--PwVe1hM0gMwITQmzadOQ5tygnjMd5Zs-SY09oU50p9t3AQemU0q4OMnloyHYvIe4Mi48GAhCoSlOuzO5XdSSw0xcIP-opTGbUW_0xokqXN9P8hunm7o-e9ZyoL9rM-ochRk-nOk3jfewQgm6srCts-r7TUbrG4sdRzmsHpj_Rp-yDvSExhYS-tntX2jU1ic5aL5bie-Fz-Zw06kyaz8KPCgF9QumT3PMMaR90-L0wzAbXfE7HsN3Q8IDGr2hT_7",
+    "filterCategory": "Bridal",
+    "heroRatio": "tall"
+  },
+  {
+    "slug": "rings",
+    "title": "Rings",
+    "description": "From subtle elegance to statement-making designs, our ring collection is created to complement every style and occasion. Discover trendy pieces that add the perfect finishing touch to your look.",
+    "bannerImage": "/images/1782372510364-796871741-3c176fe12266e844335555fb758d937e.jpg",
+    "filterCategory": "Rings",
+    "allowedColors": []
+  },
+  {
+    "slug": "earrings",
+    "title": "Earrings",
+    "description": "Elegant designs crafted to complement every occasion. From sparkling stones to contemporary silhouettes, discover earrings that add charm, grace, and effortless sophistication to your look.\n",
+    "bannerImage": "/images/1782269137025-402170454-LbZjmwJ7_fe5dea7601034cd4a8611d79d6861ff5.jpg",
+    "filterCategory": "Earring",
+    "allowedColors": [
+      "Perl Pink",
+      "Emerald"
+    ]
+  },
+  {
+    "slug": "bangles",
+    "title": "Bangles",
+    "description": "Elevate your style with stunning fashion jewelry designed to make every moment shine. Explore trendy, elegant, and occasion-ready pieces crafted to add charm to every outfit.",
+    "bannerImage": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2070&auto=format&fit=crop",
+    "filterCategory": "Bangle",
+    "allowedColors": []
+  },
+  {
+    "slug": "chains",
+    "title": "Chain's",
+    "description": "Shop stylish chain necklaces for women in elegant and modern designs. Discover premium-quality jewellery that's perfect for daily wear, parties, weddings, and festive celebrations.",
+    "bannerImage": "/images/1782445483814-371874610-img_89bb4a15c8.jpg",
+    "heroRatio": "cover",
+    "filterCategory": "Chain",
+    "allowedColors": []
+  }
+]
