@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { isVideo } from "@/lib/media";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export interface ProductProps {
   id: number;
@@ -21,6 +22,7 @@ export interface ProductProps {
 }
 
 export default function ProductCard({ product }: { product: ProductProps }) {
+  const router = useRouter();
   const { addToCart, requireCustomerAuth, wishlistItems, addToWishlist, removeFromWishlist } = useCart();
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
 
@@ -64,15 +66,16 @@ export default function ProductCard({ product }: { product: ProductProps }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-20px" }}
       whileHover="hover"
+      onClick={() => router.push(`/product/${product.id}`)}
       className="product-card hover-lift" 
-      style={{ position: "relative" }}
+      style={{ position: "relative", cursor: "pointer" }}
       variants={{
         hover: { y: -6, scale: 1.02, transition: { duration: 0.3, ease: "easeOut" } }
       }}
     >
       <Link 
         href={`/product/${product.id}`} 
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}
+        style={{ position: "absolute", inset: 0, zIndex: 15 }}
         aria-label={`View ${product.name}`}
       />
       <div className="product-img-wrap">
