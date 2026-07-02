@@ -272,12 +272,12 @@
         "addToBag": "ADD TO BAG",
         "valueProps": [
           {
-            "icon": "local_shipping",
-            "text": "Free Shipping"
+            "icon": "diamond",
+            "text": "Luxury Craftsmanship"
           },
           {
-            "icon": "autorenew",
-            "text": "7-Day Returns"
+            "icon": "verified",
+            "text": "Authentic Quality"
           }
         ]
       },

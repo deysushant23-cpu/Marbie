@@ -490,8 +490,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Value Propositions */}
           <div style={{ display: "flex", justifyContent: "space-around", marginTop: "40px", paddingTop: "32px", borderTop: "1px solid var(--color-outline-variant)" }}>
             {(config?.labels?.productDetail?.valueProps || [
-              { icon: "local_shipping", text: "Free Shipping" },
-              { icon: "autorenew", text: "7-Day Returns" }
+              { icon: "diamond", text: "Luxury Craftsmanship" },
+              { icon: "verified", text: "Authentic Quality" }
             ]).map((prop: any, index: number) => (
               <motion.div 
                 key={index} 

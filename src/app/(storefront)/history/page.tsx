@@ -26,9 +26,10 @@ export default function HistoryPage() {
   }, []);
 
   const handleDownloadInvoice = async (order: Order) => {
-    const pm = order.paymentMethod || "Online Payment";
+    const rawPm = order.paymentMethod || "Online Gateway Payment";
+    const pm = rawPm === "Razorpay" ? "Online Gateway Payment" : rawPm;
     const isCOD = pm.toUpperCase().includes("COD") || pm.toLowerCase() === "cod";
-    const paymentStatusDisplay = isCOD ? "Cash on Delivery (Pending)" : `Paid Online (${pm})`;
+    const paymentStatusDisplay = isCOD ? "Cash on Delivery (Pending)" : pm;
     const paymentInfoDisplay = isCOD ? "Cash on Delivery (COD)<br>Payable upon receipt of package" : `${pm}<br>Marbie Secure Gateway • Verified`;
     const htmlContent = `
 <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1e293b; padding: 48px; margin: 0 auto; max-width: 800px; background-color: #ffffff; box-sizing: border-box;">
@@ -142,24 +143,7 @@ export default function HistoryPage() {
     }
   };
 
-  const handleExchange = (order: Order) => {
-    alert("Exchange/Refund request has been submitted for " + order.id + ". Our team will review it.");
-    fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: order.id, refundRequested: true })
-    });
-  };
 
-  const isExchangeable = (dateString: string) => {
-    const orderDate = new Date(dateString);
-    const currentDate = new Date();
-    const diffTime = currentDate.getTime() - orderDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-    // Fallback: If date parsing fails, assume false.
-    if (isNaN(diffDays)) return false;
-    return diffDays <= 7;
-  };
 
   return (
     <div className="container" style={{ paddingTop: "120px", paddingBottom: "120px", minHeight: "80vh" }}>
@@ -238,15 +222,6 @@ export default function HistoryPage() {
                   style={{ width: "auto", padding: "12px 24px", backgroundColor: "transparent", color: "var(--color-primary)", border: "1px solid var(--color-primary)" }}
                 >
                   DOWNLOAD INVOICE
-                </button>
-                <button 
-                  className="btn-primary hover-scale" 
-                  onClick={() => handleExchange(order)}
-                  disabled={!isExchangeable(order.date)}
-                  style={{ width: "auto", padding: "12px 24px", backgroundColor: isExchangeable(order.date) ? "transparent" : "#e0e0e0", color: isExchangeable(order.date) ? "var(--color-secondary)" : "#a0a0a0", border: isExchangeable(order.date) ? "1px solid var(--color-secondary)" : "none", cursor: isExchangeable(order.date) ? "pointer" : "not-allowed" }}
-                  title={!isExchangeable(order.date) ? "The 7-day exchange window has closed." : "Request Exchange or Refund"}
-                >
-                  EXCHANGE / REFUND
                 </button>
               </div>
             </motion.div>
