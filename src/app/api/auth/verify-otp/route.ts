@@ -32,12 +32,9 @@ export async function POST(req: Request) {
     }
 
     // Verify OTP against stored value
-    if (!otpRecord.otp || otpRecord.otp !== otp.trim()) {
+    if (!otpRecord.otp || String(otpRecord.otp).trim() !== String(otp).trim()) {
       return NextResponse.json({ error: "Invalid OTP. Please try again." }, { status: 401 });
     }
-
-    // Clean up used OTP
-    await prisma.otpToken.deleteMany({ where: { phone: cleanPhone } });
 
     // Issue a short-lived verified token for NextAuth to consume
     const verifiedToken = await bcrypt.hash(`${cleanPhone}:verified`, 10);
