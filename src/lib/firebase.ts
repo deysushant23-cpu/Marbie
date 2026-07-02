@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getMessaging, isSupported, Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCzBIYqsgYaQLessLcPDla3gxsK1sGAhe0",
-  authDomain: "marbie-1600.firebaseapp.com",
-  projectId: "marbie-1600",
-  storageBucket: "marbie-1600.firebasestorage.app",
-  messagingSenderId: "481668471582",
-  appId: "1:481668471582:web:8ae0d4bd9e067e526b470f",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase only if it hasn't been initialized already
