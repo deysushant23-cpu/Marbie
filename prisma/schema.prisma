@@ -83,6 +83,7 @@ model User {
   emailVerified DateTime?
   image         String?
   phone         String?   @unique
+  pin           String?   // Bcrypt-hashed 6-digit PIN
   
   // Marbie Specific Fields
   joinDate      String?
@@ -103,6 +104,19 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Stores pending OTP sessions during login/registration
+model OtpToken {
+  id          String   @id @default(cuid())
+  phone       String   // E.164 format e.g. 919876543210
+  email       String?  // Only for new user registration
+  pinHash     String?  // Hashed PIN stored temporarily during registration
+  isNewUser   Boolean  @default(false)
+  expires     DateTime // 5 minutes from creation
+  createdAt   DateTime @default(now())
+
+  @@index([phone])
 }
 
 model Review {

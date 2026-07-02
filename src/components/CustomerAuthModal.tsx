@@ -6,263 +6,674 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 
+type Step = "phone" | "register" | "pin" | "otp";
+
+interface UserMeta {
+  phone: string;
+  cleanPhone: string;
+  name?: string;
+  isNewUser: boolean;
+}
+
 export default function CustomerAuthModal() {
   const { showAuthModal, setShowAuthModal } = useCart();
-  const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
-  const [inputValue, setInputValue] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Lock body scroll when modal is open
+  // Form state
+  const [step, setStep] = useState<Step>("phone");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [pin, setPin] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [userMeta, setUserMeta] = useState<UserMeta | null>(null);
+
+  // UI state
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Lock body scroll
   useEffect(() => {
-    if (showAuthModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
+    document.body.style.overflow = showAuthModal ? "hidden" : "auto";
+    return () => { document.body.style.overflow = "auto"; };
   }, [showAuthModal]);
+
+  // Resend OTP countdown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   if (!showAuthModal) return null;
 
+  const resetAll = () => {
+    setStep("phone");
+    setPhone("");
+    setEmail("");
+    setPin(["", "", "", "", "", ""]);
+    setOtp(["", "", "", "", "", ""]);
+    setUserMeta(null);
+    setError("");
+    setIsLoading(false);
+    setResendCooldown(0);
+  };
+
   const handleClose = () => {
     setShowAuthModal(false);
-    setTimeout(() => {
-      setStep(1);
-      setInputValue("");
-      setOtp(["", "", "", "", "", ""]);
-      setIsLoading(false);
-    }, 300);
+    setTimeout(resetAll, 300);
   };
 
-  // Google OAuth
-  const handleGoogleSignIn = () => {
-    setIsLoading(true);
-    signIn("google", { callbackUrl: window.location.href });
+  const cleanPhone = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    return digits.length === 10 ? "91" + digits : digits;
   };
 
-  const handleContinue = (e: React.FormEvent) => {
+  // ── STEP 1: Check if phone is registered ─────────────────────────────────
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    setError("");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 10) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
     setIsLoading(true);
-    // Simulate sending OTP
-    setTimeout(() => {
+
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: digits }),
+      });
+      const data = await res.json();
+
+      if (data.needsRegistration) {
+        // New user — show registration form
+        setUserMeta({ phone: digits, cleanPhone: cleanPhone(digits), isNewUser: true });
+        setStep("register");
+      } else if (data.needsPin) {
+        // Existing user — ask for PIN
+        setUserMeta({ phone: digits, cleanPhone: cleanPhone(digits), name: data.name, isNewUser: false });
+        setStep("pin");
+      } else if (data.error) {
+        setError(data.error);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setIsLoading(false);
-      setStep(2);
-    }, 1200);
-  };
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1);
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    // Auto focus next
-    if (value !== "" && index < 5) {
-      inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && otp[index] === "" && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+  // ── STEP 2a: New user submits email + PIN → send OTP ─────────────────────
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const pinStr = pin.join("");
+    if (!/^\d{6}$/.test(pinStr)) {
+      setError("Please enter all 6 digits of your PIN.");
+      return;
+    }
+    if (!email.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: userMeta!.phone, email, pin: pinStr, isNewUser: true }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setStep("otp");
+        setResendCooldown(30);
+      } else {
+        setError(data.error || "Failed to send OTP.");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  // ── STEP 2b: Returning user submits PIN → send OTP ────────────────────────
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const enteredOtp = otp.join("");
-    if (enteredOtp.length !== 6) return;
-    
+    setError("");
+    const pinStr = pin.join("");
+    if (!/^\d{6}$/.test(pinStr)) {
+      setError("Please enter all 6 digits of your PIN.");
+      return;
+    }
     setIsLoading(true);
-    // Simulate verification
-    setTimeout(() => {
+
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: userMeta!.phone, pin: pinStr, isNewUser: false }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setStep("otp");
+        setResendCooldown(30);
+      } else {
+        setError(data.error || "Failed to send OTP.");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setIsLoading(false);
-      // Dummy success
-      const successOverlay = document.createElement("div");
-      successOverlay.innerHTML = `
-        <div style="position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);color:white;font-family:sans-serif;font-size:20px;flex-direction:column;gap:16px;">
-          <span class="material-symbols-outlined" style="font-size:64px;color:#4ade80;">check_circle</span>
-          <span>Successfully Verified (Simulated)</span>
-        </div>
-      `;
-      document.body.appendChild(successOverlay);
-      setTimeout(() => {
-        document.body.removeChild(successOverlay);
+    }
+  };
+
+  // ── STEP 3: Verify OTP → sign in ─────────────────────────────────────────
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const otpStr = otp.join("");
+    if (otpStr.length !== 6) return;
+    setIsLoading(true);
+
+    try {
+      // First verify OTP
+      const verifyRes = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: userMeta!.phone, otp: otpStr }),
+      });
+      const verifyData = await verifyRes.json();
+
+      if (!verifyData.success) {
+        setError(verifyData.error || "Invalid OTP. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Now sign in via NextAuth
+      const result = await signIn("phone-pin-otp", {
+        phone: verifyData.phone,
+        verifiedToken: verifyData.verifiedToken,
+        redirect: false,
+      });
+
+      if (result?.ok) {
         handleClose();
-      }, 2000);
-    }, 1500);
+        window.location.reload();
+      } else {
+        setError("Sign in failed. Please try again.");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    setError("");
+    setOtp(["", "", "", "", "", ""]);
+    setResendCooldown(30);
+
+    const pinStr = pin.join("");
+    await fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: userMeta!.phone,
+        email: userMeta!.isNewUser ? email : undefined,
+        pin: pinStr,
+        isNewUser: userMeta!.isNewUser,
+      }),
+    });
+    otpRefs.current[0]?.focus();
+  };
+
+  // Generic 6-box input handler (shared for PIN and OTP)
+  const handleBoxInput = (
+    index: number,
+    value: string,
+    arr: string[],
+    setArr: (v: string[]) => void,
+    refs: React.MutableRefObject<(HTMLInputElement | null)[]>
+  ) => {
+    if (!/^\d*$/.test(value)) return;
+    const v = value.slice(-1);
+    const next = [...arr];
+    next[index] = v;
+    setArr(next);
+    if (v && index < 5) refs.current[index + 1]?.focus();
+  };
+
+  const handleBoxKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+    arr: string[],
+    refs: React.MutableRefObject<(HTMLInputElement | null)[]>
+  ) => {
+    if (e.key === "Backspace" && arr[index] === "" && index > 0) {
+      refs.current[index - 1]?.focus();
+    }
+  };
+
+  // ── Render helpers ────────────────────────────────────────────────────────
+  const stepTitles: Record<Step, string> = {
+    phone: "Welcome to Marbie",
+    register: "Create your account",
+    pin: `Welcome back${userMeta?.name ? `, ${userMeta.name.split(" ")[0]}` : ""}`,
+    otp: "Verify your phone",
+  };
+  const stepSubtitles: Record<Step, string> = {
+    phone: "Enter your phone number to continue",
+    register: "Set up your email and a 6-digit PIN",
+    pin: "Enter your 6-digit PIN to continue",
+    otp: `OTP sent to +${userMeta?.phone}`,
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "14px 16px",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.25)",
+    borderRadius: "12px",
+    color: "#fff",
+    fontSize: "16px",
+    outline: "none",
+    transition: "border-color 0.2s",
+  };
+
+  const btnStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "15px",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)",
+    border: "1px solid rgba(255,255,255,0.4)",
+    borderRadius: "12px",
+    color: "#ffffff",
+    fontSize: "16px",
+    fontWeight: 700,
+    cursor: isLoading ? "not-allowed" : "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+    transition: "all 0.2s ease",
+    letterSpacing: "0.03em",
+  };
+
+  const digitBoxStyle: React.CSSProperties = {
+    width: "44px",
+    height: "52px",
+    textAlign: "center",
+    fontSize: "22px",
+    fontWeight: 700,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.3)",
+    borderRadius: "10px",
+    color: "#fff",
+    outline: "none",
+    caretColor: "transparent",
+    transition: "border-color 0.2s, background 0.2s",
   };
 
   return (
-    <div 
+    <div
       style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 99999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
+        position: "fixed", inset: 0, zIndex: 99999,
+        display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
       }}
     >
-      {/* Background Image & Blur Overlay */}
+      {/* Background */}
       <div style={{ position: "absolute", inset: 0, zIndex: -2 }}>
-        <Image 
-          src="/images/lookbook_hero.png"
-          alt="Login Background"
-          fill
-          style={{ objectFit: "cover" }}
-          priority
-        />
+        <Image src="/images/lookbook_hero.png" alt="Login Background" fill style={{ objectFit: "cover" }} priority />
       </div>
-      <div 
+      <div
         style={{
-          position: "absolute",
-          inset: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.4)", // Darken the image
-          backdropFilter: "blur(8px)", // Soft background blur
-          zIndex: -1,
+          position: "absolute", inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)", backdropFilter: "blur(10px)", zIndex: -1,
         }}
         onClick={handleClose}
       />
 
-      {/* Glassmorphism Modal */}
+      {/* Modal */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%",
-          maxWidth: "480px",
-          backgroundColor: "rgba(255, 255, 255, 0.15)", // Glass background
-          backdropFilter: "blur(24px)", // Intense glass blur
-          WebkitBackdropFilter: "blur(24px)",
-          border: "1px solid rgba(255, 255, 255, 0.3)", // Glass border
+          width: "100%", maxWidth: "440px",
+          backgroundColor: "rgba(255,255,255,0.12)",
+          backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)",
+          border: "1px solid rgba(255,255,255,0.28)",
           borderRadius: "24px",
-          boxShadow: "0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4)",
+          boxShadow: "0 32px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)",
           color: "#ffffff",
           position: "relative",
-          display: "flex",
-          flexDirection: "column",
-          padding: "48px 40px",
+          padding: "44px 36px 36px",
+          overflow: "hidden",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Right X Close Button */}
+        {/* Decorative shimmer */}
+        <div style={{
+          position: "absolute", top: "-60px", right: "-60px",
+          width: "180px", height: "180px", borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Close */}
         <button
           onClick={handleClose}
-          type="button"
-          aria-label="Cancel login"
           style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            width: "36px",
-            height: "36px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            color: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            zIndex: 10,
+            position: "absolute", top: "16px", right: "16px",
+            width: "34px", height: "34px", borderRadius: "50%",
+            backgroundColor: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+            color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", transition: "background 0.2s",
           }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.25)")}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)")}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.22)")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)")}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>close</span>
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <h3 style={{ fontSize: "28px", fontWeight: 600, margin: "0 0 8px 0", letterSpacing: "-0.5px" }}>
-            Login or Sign up
-          </h3>
-          <p style={{ fontSize: "14px", color: "rgba(255, 255, 255, 0.7)", margin: "0" }}>
-            Continue with your Google account
-          </p>
-        </div>
+        {/* Back button (for register/pin/otp steps) */}
+        {step !== "phone" && (
+          <button
+            onClick={() => {
+              setError("");
+              setOtp(["", "", "", "", "", ""]);
+              if (step === "otp") {
+                setStep(userMeta?.isNewUser ? "register" : "pin");
+              } else {
+                setStep("phone");
+              }
+            }}
+            style={{
+              position: "absolute", top: "16px", left: "16px",
+              width: "34px", height: "34px", borderRadius: "50%",
+              backgroundColor: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", transition: "background 0.2s",
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.22)")}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)")}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_back</span>
+          </button>
+        )}
 
+        {/* Header */}
         <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {/* Temporarily hidden OTP flow
-              <form onSubmit={handleContinue} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              ...
-              </form>
-              <div style={{ display: "flex", alignItems: "center", margin: "24px 0" }}>...</div>
-              */}
+          <motion.div
+            key={step + "-header"}
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            style={{ textAlign: "center", marginBottom: "28px" }}
+          >
+            <div style={{
+              width: "52px", height: "52px", borderRadius: "50%", margin: "0 auto 16px",
+              background: "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05))",
+              border: "1px solid rgba(255,255,255,0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "26px" }}>
+                {step === "phone" ? "person" : step === "otp" ? "sms" : step === "register" ? "edit_note" : "lock"}
+              </span>
+            </div>
+            <h3 style={{ fontSize: "22px", fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.3px" }}>
+              {stepTitles[step]}
+            </h3>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", margin: 0 }}>
+              {stepSubtitles[step]}
+            </p>
+          </motion.div>
+        </AnimatePresence>
 
-              <button
-                onClick={handleGoogleSignIn}
-                type="button"
-                style={{
-                  width: "100%",
-                  padding: "16px",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  border: "1px solid rgba(255, 255, 255, 0.3)",
-                  borderRadius: "12px",
-                  color: "#ffffff",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "12px",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                Continue with Google
-              </button>
+        {/* Error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              style={{
+                backgroundColor: "rgba(220,50,50,0.2)", border: "1px solid rgba(220,50,50,0.4)",
+                borderRadius: "10px", padding: "10px 14px", marginBottom: "16px",
+                fontSize: "13px", color: "#ffaaaa", display: "flex", alignItems: "center", gap: "8px",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>error</span>
+              {error}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Subtle disclaimer */}
-        <p style={{ textAlign: "center", fontSize: "11px", color: "rgba(255, 255, 255, 0.5)", marginTop: "32px", marginBottom: 0 }}>
-          By continuing, you agree to our Terms of Service & Privacy Policy.
+        {/* ── STEP: Phone ── */}
+        <AnimatePresence mode="wait">
+          {step === "phone" && (
+            <motion.form
+              key="step-phone"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              onSubmit={handlePhoneSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <div style={{ position: "relative" }}>
+                <div style={{
+                  position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)",
+                  fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.7)", pointerEvents: "none",
+                }}>+91</div>
+                <input
+                  type="tel"
+                  placeholder="Mobile number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  maxLength={10}
+                  required
+                  autoFocus
+                  style={{ ...inputStyle, paddingLeft: "48px" }}
+                />
+              </div>
+              <button type="submit" disabled={isLoading} style={btnStyle}>
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_forward</span> Continue</>}
+              </button>
+            </motion.form>
+          )}
+
+          {/* ── STEP: Register ── */}
+          {step === "register" && (
+            <motion.form
+              key="step-register"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              onSubmit={handleRegisterSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+                style={inputStyle}
+              />
+              <div>
+                <label style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px", letterSpacing: "0.05em" }}>
+                  CREATE A 6-DIGIT PIN
+                </label>
+                <div style={{ display: "flex", gap: "8px", justifyContent: "space-between" }}>
+                  {pin.map((d, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => { pinRefs.current[i] = el; }}
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={d}
+                      autoFocus={i === 0}
+                      onChange={(e) => handleBoxInput(i, e.target.value, pin, setPin, pinRefs)}
+                      onKeyDown={(e) => handleBoxKeyDown(i, e, pin, pinRefs)}
+                      style={digitBoxStyle}
+                    />
+                  ))}
+                </div>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.45)", marginTop: "8px" }}>
+                  Remember this PIN — you'll need it every time you sign in.
+                </p>
+              </div>
+              <button type="submit" disabled={isLoading} style={btnStyle}>
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>sms</span> Send OTP</>}
+              </button>
+            </motion.form>
+          )}
+
+          {/* ── STEP: PIN (returning user) ── */}
+          {step === "pin" && (
+            <motion.form
+              key="step-pin"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              onSubmit={handlePinSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+            >
+              <div>
+                <label style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "10px", letterSpacing: "0.05em", textAlign: "center" }}>
+                  ENTER YOUR 6-DIGIT PIN
+                </label>
+                <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                  {pin.map((d, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => { pinRefs.current[i] = el; }}
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={d}
+                      autoFocus={i === 0}
+                      onChange={(e) => handleBoxInput(i, e.target.value, pin, setPin, pinRefs)}
+                      onKeyDown={(e) => handleBoxKeyDown(i, e, pin, pinRefs)}
+                      style={digitBoxStyle}
+                    />
+                  ))}
+                </div>
+              </div>
+              <button type="submit" disabled={isLoading} style={btnStyle}>
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>sms</span> Send OTP</>}
+              </button>
+            </motion.form>
+          )}
+
+          {/* ── STEP: OTP ── */}
+          {step === "otp" && (
+            <motion.form
+              key="step-otp"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25 }}
+              onSubmit={handleOtpSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+            >
+              <div>
+                <label style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "10px", letterSpacing: "0.05em", textAlign: "center" }}>
+                  ENTER 6-DIGIT OTP
+                </label>
+                <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                  {otp.map((d, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => { otpRefs.current[i] = el; }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={d}
+                      autoFocus={i === 0}
+                      onChange={(e) => handleBoxInput(i, e.target.value, otp, setOtp, otpRefs)}
+                      onKeyDown={(e) => handleBoxKeyDown(i, e, otp, otpRefs)}
+                      style={{
+                        ...digitBoxStyle,
+                        border: d ? "1px solid rgba(255,255,255,0.65)" : "1px solid rgba(255,255,255,0.25)",
+                        backgroundColor: d ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.08)",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" disabled={isLoading || otp.join("").length !== 6} style={btnStyle}>
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>check_circle</span> Verify & Sign In</>}
+              </button>
+
+              <div style={{ textAlign: "center" }}>
+                {resendCooldown > 0 ? (
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)" }}>
+                    Resend OTP in {resendCooldown}s
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    style={{
+                      background: "none", border: "none", color: "rgba(255,255,255,0.75)",
+                      fontSize: "13px", cursor: "pointer", textDecoration: "underline",
+                    }}
+                  >
+                    Resend OTP
+                  </button>
+                )}
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
+
+        {/* Step indicator dots */}
+        <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "28px" }}>
+          {(["phone", "register", "otp"] as Step[]).map((s, i) => {
+            const stepOrder: Record<Step, number> = { phone: 0, register: 1, pin: 1, otp: 2 };
+            const current = stepOrder[step];
+            const isActive = i === current;
+            const isPast = i < current;
+            return (
+              <div key={i} style={{
+                width: isActive ? "20px" : "6px", height: "6px", borderRadius: "3px",
+                backgroundColor: isActive
+                  ? "rgba(255,255,255,0.9)"
+                  : isPast ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.2)",
+                transition: "all 0.3s ease",
+              }} />
+            );
+          })}
+        </div>
+
+        <p style={{ textAlign: "center", fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "16px", marginBottom: 0 }}>
+          By continuing, you agree to our Terms of Service &amp; Privacy Policy.
         </p>
 
-        {/* CSS for spinner */}
         <style>{`
-          .animate-spin {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
+          input::placeholder { color: rgba(255,255,255,0.35); }
+          input:focus { border-color: rgba(255,255,255,0.55) !important; background-color: rgba(255,255,255,0.12) !important; }
+          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         `}</style>
       </motion.div>
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
+      <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+    </svg>
   );
 }

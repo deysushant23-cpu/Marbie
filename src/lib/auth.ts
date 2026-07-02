@@ -1,9 +1,8 @@
 import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
-
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -11,67 +10,71 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
     CredentialsProvider({
-      id: "phone-otp",
-      name: "Phone OTP",
+      id: "phone-pin-otp",
+      name: "Phone + PIN",
       credentials: {
-        idToken: { label: "ID Token", type: "text" },
+        phone: { label: "Phone", type: "text" },
+        verifiedToken: { label: "Verified Token", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.idToken) return null;
+        if (!credentials?.phone || !credentials?.verifiedToken) return null;
 
         try {
-          // Verify the Firebase ID Token using Google Identity Toolkit REST API
-          // This avoids needing firebase-admin and a service account JSON!
-          const apiKey = "AIzaSyCzBIYqsgYaQLessLcPDla3gxsK1sGAhe0";
-          const verifyRes = await fetch(
-            `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ idToken: credentials.idToken }),
-            }
-          );
-          
-          const verifyData = await verifyRes.json();
-          if (!verifyRes.ok || !verifyData.users || verifyData.users.length === 0) {
-            console.error("Firebase ID Token Verification failed:", verifyData);
+          // Look up the OtpToken record that was marked as verified
+          const otpRecord = await prisma.otpToken.findFirst({
+            where: {
+              phone: credentials.phone,
+              expires: { gt: new Date() },
+            },
+            orderBy: { createdAt: "desc" },
+          });
+
+          if (!otpRecord) {
+            console.error("No valid OTP record found for phone:", credentials.phone);
             return null;
           }
 
-          const firebaseUser = verifyData.users[0];
-          const phoneNumber = firebaseUser.phoneNumber; // e.g. "+919876543210"
+          // Verify the token matches what server issued
+          const isTokenValid = await bcrypt.compare(
+            `${credentials.phone}:verified`,
+            credentials.verifiedToken
+          );
 
-          if (!phoneNumber) return null;
+          if (!isTokenValid) {
+            console.error("Invalid verified token");
+            return null;
+          }
 
-          // Look up or create the user in the database
+          // Clean up OTP record
+          await prisma.otpToken.deleteMany({ where: { phone: credentials.phone } });
+
+          // Upsert user
           let user = await prisma.user.findFirst({
-            where: { phone: phoneNumber },
+            where: { phone: credentials.phone },
           });
 
           if (!user) {
+            // New user — use data from the OTP record
             user = await prisma.user.create({
               data: {
-                phone: phoneNumber,
-                name: `User ${phoneNumber.slice(-4)}`, // Default name based on last 4 digits
+                phone: credentials.phone,
+                email: otpRecord.email ?? undefined,
+                name: otpRecord.email
+                  ? otpRecord.email.split("@")[0]
+                  : `User ${credentials.phone.slice(-4)}`,
+                pin: otpRecord.pinHash ?? undefined,
+                joinDate: new Date().toLocaleDateString("en-IN", {
+                  month: "long",
+                  year: "numeric",
+                }),
               },
             });
           }
 
           return user;
         } catch (error) {
-          console.error("Phone Auth Error:", error);
+          console.error("Auth Error:", error);
           return null;
         }
       },
@@ -82,6 +85,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.phone = (user as any).phone;
+        token.email = (user as any).email;
       }
       return token;
     },
@@ -89,9 +93,15 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         (session.user as any).id = token.id as string;
         (session.user as any).phone = token.phone as string;
+        if (!session.user.email && token.email) {
+          session.user.email = token.email as string;
+        }
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
