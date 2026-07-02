@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
         date: body.date || new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
         amount: Number(body.amount) || 0,
         status: body.status || "PROCESSING",
+        paymentMethod: body.paymentMethod || "Online",
         items: body.items || [],
         shippingAddress: body.shippingAddress || {}
       }

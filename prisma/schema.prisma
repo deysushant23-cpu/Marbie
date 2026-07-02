@@ -39,6 +39,7 @@ model Order {
   status               String   // PROCESSING, PACKED, READY_TO_DISPATCH, SHIPPED, DELIVERED, REFUNDED
   trackingLink         String?
   trackingPartner      String?
+  paymentMethod        String?  @default("Online")
   refundRequested      Boolean  @default(false)
   shiprocketOrderId    String?
   shiprocketShipmentId String?

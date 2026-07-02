@@ -101,6 +101,7 @@ export default function CartPage() {
           body: JSON.stringify({
             amount: total,
             status: "PROCESSING",
+            paymentMethod: "COD",
             customerName: session?.user?.name || "Couture Client",
             initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
             date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
@@ -172,6 +173,7 @@ export default function CartPage() {
               body: JSON.stringify({
                 amount: total,
                 status: "PROCESSING",
+                paymentMethod: "Razorpay",
                 customerName: session?.user?.name || "Couture Client",
                 initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
                 date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),

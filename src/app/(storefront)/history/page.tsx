@@ -13,6 +13,7 @@ interface Order {
   total: number;
   items: CartItem[];
   status: string;
+  paymentMethod?: string;
   shippingAddress?: any;
 }
 
@@ -25,6 +26,7 @@ export default function HistoryPage() {
   }, []);
 
   const handleDownloadInvoice = async (order: Order) => {
+    const isCOD = order.paymentMethod?.toUpperCase() === "COD";
     const htmlContent = `
 <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1e293b; padding: 48px; margin: 0 auto; max-width: 800px; background-color: #ffffff; box-sizing: border-box;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -52,7 +54,7 @@ export default function HistoryPage() {
     <div style="text-align: right;">
       <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Invoice Details</div>
       <div style="font-size: 13px; color: #64748b;"><strong style="color: #1e293b;">Date Issued:</strong> ${order.date}</div>
-      <div style="font-size: 13px; color: #64748b; margin-top: 4px;"><strong style="color: #1e293b;">Payment Status:</strong> Paid Online</div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 4px;"><strong style="color: #1e293b;">Payment Status:</strong> ${isCOD ? 'Cash on Delivery (Pending)' : 'Paid Online'}</div>
     </div>
   </div>
 
@@ -85,7 +87,7 @@ export default function HistoryPage() {
   <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 24px;">
     <div style="width: 50%;">
       <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Payment Info</div>
-      <div style="font-size: 13px; color: #64748b; line-height: 1.5;">Verified Gateway Transaction<br>Marbie Secure Checkout</div>
+      <div style="font-size: 13px; color: #64748b; line-height: 1.5;">${isCOD ? 'Cash on Delivery (COD)<br>Payable upon receipt of package' : 'Verified Gateway Transaction<br>Marbie Secure Checkout'}</div>
     </div>
     <div style="width: 40%;">
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
