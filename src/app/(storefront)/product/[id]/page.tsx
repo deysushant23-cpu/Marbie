@@ -487,24 +487,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </motion.div>
           )}
 
-          {/* Value Propositions */}
-          <div style={{ display: "flex", justifyContent: "space-around", marginTop: "40px", paddingTop: "32px", borderTop: "1px solid var(--color-outline-variant)" }}>
-            {[
-              { icon: "diamond", text: "Luxury Craftsmanship" },
-              { icon: "verified", text: "Authentic Quality" }
-            ].map((prop: any, index: number) => (
-              <motion.div 
-                key={index} 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.15 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", color: "var(--color-on-surface-variant)" }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>{prop.icon}</span>
-                <span style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{prop.text}</span>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
       </div>
 
