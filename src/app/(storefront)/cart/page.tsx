@@ -150,7 +150,7 @@ export default function CartPage() {
 
       // 2. Initialize Razorpay Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_T6djGVxU17ZCSI", // Fallback to your test key
+        key: orderData.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_T8aT6lPagbTyCA", // Live Key
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Marbie",

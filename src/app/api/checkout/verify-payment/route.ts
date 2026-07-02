@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing payment signature parameters" }, { status: 400 });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET as string;
+    const secret = (process.env.RAZORPAY_KEY_SECRET || "mKhCf4jOY9IV7IYQm0x90yZj") as string;
     
     // Verify Razorpay signature using HMAC SHA256
     const generatedSignature = crypto

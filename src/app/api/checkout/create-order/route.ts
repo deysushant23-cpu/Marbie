@@ -5,8 +5,8 @@ import crypto from "crypto";
 export async function POST(req: Request) {
   try {
     const razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || "dummy",
-      key_secret: process.env.RAZORPAY_KEY_SECRET || "dummy",
+      key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_T8aT6lPagbTyCA",
+      key_secret: process.env.RAZORPAY_KEY_SECRET || "mKhCf4jOY9IV7IYQm0x90yZj",
     });
 
     const { amount } = await req.json();
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       id: order.id,
       amount: order.amount,
       currency: order.currency,
+      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || "rzp_live_T8aT6lPagbTyCA"
     });
   } catch (error) {
     console.error("Razorpay Order Creation Error:", error);
