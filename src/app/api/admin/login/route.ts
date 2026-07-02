@@ -5,35 +5,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, passKey, username, password } = body;
 
-      const envPassKey = process.env.ADMIN_SECRET_KEY || "MarbieVault_9xK2pLqW7mY5vN";
-      const envUsername = process.env.ADMIN_USERNAME || "Baisakhi_kanthariya";
-      const envPassword = process.env.ADMIN_PASSWORD || "SecureMarbie2026";
-
-      console.log("LOGIN ATTEMPT:");
-      console.log("Expected:", { envPassKey, envUsername, envPassword });
-      console.log("Received:", { passKey, username, password });
-
-      if (
-        passKey === envPassKey &&
-        username === envUsername &&
-        password === envPassword
-      ) {
-        const response = NextResponse.json({ success: true });
-        
-        // Match the cookie name we look for in middleware
-        response.cookies.set({
-          name: "admin_token",
-          value: "true",
-          httpOnly: true,
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          maxAge: 60 * 60 * 24 // 24 hours
-        });
-        return response;
-      }
-      return NextResponse.json({ error: "ACCESS DENIED" }, { status: 401 });
-    }
-
     // Logout
     if (action === "logout") {
       const response = NextResponse.json({ success: true });
@@ -41,7 +12,33 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
+    const envPassKey = process.env.ADMIN_SECRET_KEY || "MarbieVault_9xK2pLqW7mY5vN";
+    const envUsername = process.env.ADMIN_USERNAME || "Baisakhi_kanthariya";
+    const envPassword = process.env.ADMIN_PASSWORD || "SecureMarbie2026";
+
+    console.log("LOGIN ATTEMPT:");
+    console.log("Expected:", { envPassKey, envUsername, envPassword });
+    console.log("Received:", { passKey, username, password });
+
+    if (
+      passKey === envPassKey &&
+      username === envUsername &&
+      password === envPassword
+    ) {
+      const response = NextResponse.json({ success: true });
+      
+      response.cookies.set({
+        name: "admin_token",
+        value: "true",
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 // 24 hours
+      });
+      return response;
+    }
+
+    return NextResponse.json({ error: "ACCESS DENIED" }, { status: 401 });
   } catch (err) {
     console.error("Admin login error:", err);
     return NextResponse.json({ error: "Authentication failed." }, { status: 500 });
