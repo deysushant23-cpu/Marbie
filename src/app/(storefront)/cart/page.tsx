@@ -93,6 +93,12 @@ export default function CartPage() {
     
     setIsProcessing(true);
 
+    const detailedPaymentMethod =
+      paymentMethod === "cod" ? "Cash on Delivery (COD)" :
+      paymentMethod === "upi" ? "UPI (GPay, PhonePe, Paytm)" :
+      paymentMethod === "netbanking" ? "Net Banking" :
+      paymentMethod === "card" ? "Credit / Debit Card" : "Online Payment";
+
     try {
       if (paymentMethod === "cod") {
         const finalOrderRes = await fetch("/api/orders", {
@@ -101,7 +107,7 @@ export default function CartPage() {
           body: JSON.stringify({
             amount: total,
             status: "PROCESSING",
-            paymentMethod: "COD",
+            paymentMethod: detailedPaymentMethod,
             customerName: session?.user?.name || "Couture Client",
             initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
             date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
@@ -121,7 +127,7 @@ export default function CartPage() {
           total: total,
           items: [...items],
           status: "PROCESSING",
-          paymentMethod: "COD"
+          paymentMethod: detailedPaymentMethod
         };
         
         const existingHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
@@ -173,7 +179,7 @@ export default function CartPage() {
               body: JSON.stringify({
                 amount: total,
                 status: "PROCESSING",
-                paymentMethod: "Razorpay",
+                paymentMethod: detailedPaymentMethod,
                 customerName: session?.user?.name || "Couture Client",
                 initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
                 date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
@@ -193,7 +199,7 @@ export default function CartPage() {
               total: total,
               items: [...items],
               status: "PROCESSING",
-              paymentMethod: "Razorpay",
+              paymentMethod: detailedPaymentMethod,
               paymentId: response.razorpay_payment_id
             };
             

@@ -164,8 +164,8 @@ export default function LabelsPage() {
                  const cityStatePin = parts.length > 2 ? parts.slice(-3).join(", ") : parts.join(", ");
                  const addressLine1 = parts.length > 2 ? parts.slice(0, -3).join(", ") : "";
                  const mobile = order.shippingAddress?.mobile || "N/A";
-                 const isCOD = order.paymentMethod === 'COD';
-                 const paymentDisplay = isCOD ? 'COD' : 'PAID';
+                 const isCOD = Boolean(order.paymentMethod && (order.paymentMethod.toUpperCase().includes('COD') || order.paymentMethod.toLowerCase() === 'cod'));
+                 const paymentDisplay = isCOD ? 'COD' : (order.paymentMethod ? `PAID (${order.paymentMethod})` : 'PAID');
                  
                  return (
                    <div key={order.id} className="shipping-label">
