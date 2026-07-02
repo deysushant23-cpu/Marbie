@@ -21,22 +21,41 @@ export default function HistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    const history = JSON.parse(localStorage.getItem("orderHistory") || "[]");
-    setOrders(history);
+    const localHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+    setOrders(localHistory);
+
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(serverOrders => {
+        if (Array.isArray(serverOrders)) {
+          const combined = [...localHistory];
+          serverOrders.forEach(so => {
+            if (!combined.some(c => c.id === so.id)) {
+              combined.push(so);
+            }
+          });
+          setOrders(combined);
+        }
+      })
+      .catch(err => console.error("Could not sync server orders:", err));
   }, []);
 
   const handleDownloadInvoice = async (order: Order) => {
-    const rawPm = order.paymentMethod || "Online Gateway Payment";
-    const pm = rawPm === "Razorpay" ? "Online Gateway Payment" : rawPm;
+    const rawPm = order.paymentMethod || "Secured Digital Payment";
+    const pm = rawPm === "Razorpay" ? "Verified Electronic Payment (Gateway)" : rawPm === "Online" ? "Verified Electronic Payment" : rawPm;
     const isCOD = pm.toUpperCase().includes("COD") || pm.toLowerCase() === "cod";
-    const paymentStatusDisplay = isCOD ? "Cash on Delivery (Pending)" : pm;
-    const paymentInfoDisplay = isCOD ? "Cash on Delivery (COD)<br>Payable upon receipt of package" : `${pm}<br>Marbie Secure Gateway • Verified`;
+    const paymentStatusDisplay = isCOD ? "Cash on Delivery (Pending Collection)" : pm;
+    const paymentInfoDisplay = isCOD ? "Cash on Delivery (COD)<br>Payable upon receipt of package" : `${pm}<br>Marbie Secure Checkout • Verified`;
     const htmlContent = `
 <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1e293b; padding: 48px; margin: 0 auto; max-width: 800px; background-color: #ffffff; box-sizing: border-box;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">MARBIE</div>
+      <div style="font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em;">MARBIE JEWELS</div>
       <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Luxury Bridal & Contemporary Jewelry</div>
+      <div style="font-size: 12px; color: #334155; margin-top: 6px;">
+        <strong>Owner/Management:</strong> Baisakhi Kanthariya<br>
+        <strong>Official Email:</strong> marbiejewels4@gmail.com
+      </div>
     </div>
     <div style="text-align: right;">
       <div style="font-size: 32px; font-weight: 300; color: #94a3b8; letter-spacing: 0.1em;">INVOICE</div>
@@ -99,18 +118,20 @@ export default function HistoryPage() {
         <span>₹${order.total.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
-        <span>Shipping</span>
-        <span>FREE</span>
+        <span>Courier / Shipping</span>
+        <span style="text-align: right;">Billed via Delivery Partner</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>
-        <span>₹${order.total.toLocaleString()}</span>
+        <span>₹${order.total.toLocaleString()} + Partner Courier</span>
       </div>
     </div>
   </div>
 
-  <div style="text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-    Thank you for shopping with Marbie • support@marbie.com • www.marbie.com
+  <div style="text-align: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b; line-height: 1.6;">
+    <strong style="color: #0f172a;">Marbie Jewels • Official Commercial Invoice</strong><br>
+    For order assistance, support, or verification, contact Owner/Management directly:<br>
+    <strong>Baisakhi Kanthariya</strong> | Email: <strong>marbiejewels4@gmail.com</strong> | Web: <strong>www.marbie.com</strong>
   </div>
 </div>`;
 
