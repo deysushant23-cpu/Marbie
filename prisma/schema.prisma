@@ -111,6 +111,7 @@ model OtpToken {
   id          String   @id @default(cuid())
   phone       String   // E.164 format e.g. 919876543210
   email       String?  // Only for new user registration
+  otp         String?  // The generated OTP sent via email
   pinHash     String?  // Hashed PIN stored temporarily during registration
   isNewUser   Boolean  @default(false)
   expires     DateTime // 5 minutes from creation

@@ -13,6 +13,7 @@ interface UserMeta {
   cleanPhone: string;
   name?: string;
   isNewUser: boolean;
+  maskedEmail?: string;
 }
 
 export default function CustomerAuthModal() {
@@ -132,6 +133,7 @@ export default function CustomerAuthModal() {
       const data = await res.json();
 
       if (data.success) {
+        setUserMeta(prev => prev ? { ...prev, maskedEmail: data.maskedEmail } : prev);
         setStep("otp");
         setResendCooldown(30);
       } else {
@@ -164,6 +166,7 @@ export default function CustomerAuthModal() {
       const data = await res.json();
 
       if (data.success) {
+        setUserMeta(prev => prev ? { ...prev, maskedEmail: data.maskedEmail } : prev);
         setStep("otp");
         setResendCooldown(30);
       } else {
@@ -272,13 +275,13 @@ export default function CustomerAuthModal() {
     phone: "Welcome to Marbie",
     register: "Create your account",
     pin: `Welcome back${userMeta?.name ? `, ${userMeta.name.split(" ")[0]}` : ""}`,
-    otp: "Verify your phone",
+    otp: "Verify your email",
   };
   const stepSubtitles: Record<Step, string> = {
     phone: "Enter your phone number to continue",
     register: "Set up your email and a 6-digit PIN",
     pin: "Enter your 6-digit PIN to continue",
-    otp: `OTP sent to +${userMeta?.phone}`,
+    otp: `OTP sent to ${userMeta?.maskedEmail || "your email"}`,
   };
 
   const inputStyle: React.CSSProperties = {
@@ -430,7 +433,7 @@ export default function CustomerAuthModal() {
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: "26px" }}>
-                {step === "phone" ? "person" : step === "otp" ? "sms" : step === "register" ? "edit_note" : "lock"}
+                {step === "phone" ? "person" : step === "otp" ? "mail" : step === "register" ? "edit_note" : "lock"}
               </span>
             </div>
             <h3 style={{ fontSize: "22px", fontWeight: 700, margin: "0 0 6px", letterSpacing: "-0.3px" }}>
@@ -534,7 +537,7 @@ export default function CustomerAuthModal() {
                 </p>
               </div>
               <button type="submit" disabled={isLoading} style={btnStyle}>
-                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>sms</span> Send OTP</>}
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>mail</span> Send OTP to Email</>}
               </button>
             </motion.form>
           )}
@@ -570,7 +573,7 @@ export default function CustomerAuthModal() {
                 </div>
               </div>
               <button type="submit" disabled={isLoading} style={btnStyle}>
-                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>sms</span> Send OTP</>}
+                {isLoading ? <Spinner /> : <><span className="material-symbols-outlined" style={{ fontSize: "18px" }}>mail</span> Send OTP to Email</>}
               </button>
             </motion.form>
           )}

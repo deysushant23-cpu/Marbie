@@ -1,7 +1,46 @@
 import { NextResponse } from "next/server";
-import { sendOTP } from "@/lib/msg91";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { sendEmail } from "@/lib/mailer";
+
+// Helper: mask email for display (e.g. ma***@gmail.com)
+function maskEmail(email: string): string {
+  const [user, domain] = email.split("@");
+  if (!domain) return email;
+  return user.slice(0, 2) + "***@" + domain;
+}
+
+// Helper: generate 6-digit OTP
+function generateOTP(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Helper: send OTP email
+async function sendOtpEmail(to: string, otp: string) {
+  await sendEmail({
+    to,
+    subject: "Your Marbie Jewels Login OTP",
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e8ddd0;">
+        <div style="background: linear-gradient(135deg, #2c1810 0%, #5c3a1e 100%); padding: 32px; text-align: center;">
+          <h1 style="color: #f0e0c8; font-size: 24px; margin: 0; letter-spacing: 2px;">MARBIE JEWELS</h1>
+          <p style="color: rgba(240,224,200,0.7); margin: 8px 0 0; font-size: 13px; letter-spacing: 1px;">TIMELESS ELEGANCE</p>
+        </div>
+        <div style="padding: 40px 32px; text-align: center;">
+          <p style="color: #5c3a1e; font-size: 16px; margin: 0 0 24px;">Your one-time verification code is:</p>
+          <div style="background: #fdf8f4; border: 2px solid #d4a574; border-radius: 12px; padding: 24px; margin: 0 auto 24px; display: inline-block; min-width: 200px;">
+            <span style="font-size: 42px; font-weight: 700; letter-spacing: 12px; color: #2c1810; font-family: monospace;">${otp}</span>
+          </div>
+          <p style="color: #8b6347; font-size: 13px; margin: 0 0 8px;">This code expires in <strong>5 minutes</strong>.</p>
+          <p style="color: #b0967a; font-size: 12px; margin: 0;">If you didn't request this, please ignore this email.</p>
+        </div>
+        <div style="background: #fdf8f4; padding: 16px 32px; text-align: center; border-top: 1px solid #e8ddd0;">
+          <p style="color: #b0967a; font-size: 11px; margin: 0;">© 2026 Marbie Jewels · support@marbiejewels.com</p>
+        </div>
+      </div>
+    `,
+  });
+}
 
 export async function POST(req: Request) {
   try {
@@ -21,42 +60,42 @@ export async function POST(req: Request) {
       where: { phone: cleanPhone },
     });
 
+    let emailToSend: string;
+
     // New user path
     if (!existingUser) {
       if (!email || !pin) {
-        // Phone not found — signal frontend to show registration fields
         return NextResponse.json({ needsRegistration: true });
       }
 
-      // Validate email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
       }
 
-      // Validate PIN is exactly 6 digits
       if (!/^\d{6}$/.test(pin)) {
         return NextResponse.json({ error: "PIN must be exactly 6 digits" }, { status: 400 });
       }
 
-      // Check email not already taken
       const emailTaken = await prisma.user.findUnique({ where: { email } });
       if (emailTaken) {
         return NextResponse.json({ error: "This email is already registered" }, { status: 400 });
       }
 
-      // Hash the PIN and store in OtpToken for later use
       const pinHash = await bcrypt.hash(pin, 10);
-      const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      const expires = new Date(Date.now() + 5 * 60 * 1000);
+      const generatedOtp = generateOTP();
 
-      // Upsert OTP record
       await prisma.otpToken.deleteMany({ where: { phone: cleanPhone } });
       await prisma.otpToken.create({
-        data: { phone: cleanPhone, email, pinHash, isNewUser: true, expires },
+        data: { phone: cleanPhone, email, otp: generatedOtp, pinHash, isNewUser: true, expires },
       });
 
+      emailToSend = email;
+      await sendOtpEmail(emailToSend, generatedOtp);
+
     } else {
-      // Returning user path — validate PIN
+      // Returning user — validate PIN
       if (!pin) {
         return NextResponse.json({ needsPin: true, name: existingUser.name });
       }
@@ -74,21 +113,27 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Incorrect PIN" }, { status: 401 });
       }
 
-      // Store OTP session
+      if (!existingUser.email) {
+        return NextResponse.json({ error: "No email on file. Please contact support." }, { status: 400 });
+      }
+
       const expires = new Date(Date.now() + 5 * 60 * 1000);
+      const generatedOtp = generateOTP();
+
       await prisma.otpToken.deleteMany({ where: { phone: cleanPhone } });
       await prisma.otpToken.create({
-        data: { phone: cleanPhone, isNewUser: false, expires },
+        data: { phone: cleanPhone, email: existingUser.email, otp: generatedOtp, isNewUser: false, expires },
       });
+
+      emailToSend = existingUser.email;
+      await sendOtpEmail(emailToSend, generatedOtp);
     }
 
-    // Send OTP via MSG91
-    const response = await sendOTP(cleanPhone);
-    if (response.type === "error") {
-      return NextResponse.json({ error: response.message }, { status: 400 });
-    }
-
-    return NextResponse.json({ success: true, message: "OTP sent successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "OTP sent to your email",
+      maskedEmail: maskEmail(emailToSend),
+    });
   } catch (error) {
     console.error("Send OTP Error:", error);
     return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 });
