@@ -1,6 +1,11 @@
-import { redirect } from "next/navigation";
+import AdminLogin from "@/components/AdminLogin";
 
-export default function OldLoginPage() {
-  // If the browser or a cached link tries to go here, instantly bounce them to /admin
-  redirect("/admin");
+export default function LoginPage() {
+  return (
+    <div className="app-container">
+      <main style={{ width: "100%", margin: 0, padding: 0 }}>
+        <AdminLogin />
+      </main>
+    </div>
+  );
 }

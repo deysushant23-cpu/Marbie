@@ -40,8 +40,7 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Refresh the current route so the Server Layout sees the new cookie
-        router.refresh();
+        window.location.href = "/admin";
       } else {
         setError(data.error || "ACCESS DENIED");
       }
