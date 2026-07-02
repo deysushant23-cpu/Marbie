@@ -39,8 +39,11 @@ export function proxy(request: NextRequest) {
       (pathname.startsWith("/api/newsletter") && !pathname.startsWith("/api/newsletter/broadcast")) ||
       (pathname.startsWith("/api/orders") && request.method === "POST") ||
       (pathname.startsWith("/api/reviews") && request.method === "POST") ||
+      pathname.startsWith("/api/auth/send-otp") ||
+      pathname.startsWith("/api/auth/verify-otp") ||
       pathname.startsWith("/api/customers/send-otp") ||
-      pathname.startsWith("/api/customers/verify-otp");
+      pathname.startsWith("/api/customers/verify-otp") ||
+      pathname.startsWith("/api/auth/");
 
     if (isMutatingMethod && !isPublicMutatingEndpoint) {
       const authHeader = request.headers.get("x-admin-secret");
