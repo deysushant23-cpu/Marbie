@@ -78,6 +78,7 @@ export default function HistoryPage() {
       <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Invoice Details</div>
       <div style="font-size: 13px; color: #64748b;"><strong style="color: #1e293b;">Date Issued:</strong> ${order.date}</div>
       <div style="font-size: 13px; color: #64748b; margin-top: 4px;"><strong style="color: #1e293b;">Payment Status:</strong> ${paymentStatusDisplay}</div>
+      <div style="font-size: 13px; color: #2874f0; margin-top: 4px;"><strong style="color: #1e293b;">Delivery Partner:</strong> Ekart Logistics</div>
     </div>
   </div>
 
@@ -119,11 +120,11 @@ export default function HistoryPage() {
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Courier / Shipping</span>
-        <span style="text-align: right;">Billed via Delivery Partner</span>
+        <span style="text-align: right; color: #2874f0; font-weight: 600;">Ekart Logistics (FREE)</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>
-        <span>₹${order.total.toLocaleString()} + Partner Courier</span>
+        <span>₹${order.total.toLocaleString()}</span>
       </div>
     </div>
   </div>

@@ -2,9 +2,9 @@ import { NextRequest } from "next/server";
 // import { checkServiceability } from "@/lib/shiprocket";
 
 export async function POST(request: NextRequest) {
-  // TODO: Implement new shipping logic with BlueDart/Delhivery
+  // TODO: Implement custom pincode serviceability check with Ekart Logistics
   return Response.json({
-    serviceable: false,
-    error: "Shipping module is currently being updated."
+    serviceable: true,
+    partner: "Ekart Logistics"
   });
 }

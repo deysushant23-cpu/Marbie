@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createDelhiveryOrder } from "@/lib/delhivery";
-import { createBlueDartOrder } from "@/lib/bluedart";
+import { createEkartOrder } from "@/lib/ekart";
 import { cookies } from "next/headers";
 
 export async function POST(
@@ -15,7 +14,7 @@ export async function POST(
   }
 
   try {
-    const { courierId, weight } = await request.json(); // "Delhivery" or "BlueDart", weight in kg
+    const { courierId, weight } = await request.json(); // E.g., "Ekart", weight in kg
     
     // In a real application, fetch the full order from your database here.
     // We create a standardized mock order payload to send to the delivery partners.
@@ -35,12 +34,10 @@ export async function POST(
 
     let shippingResponse;
 
-    if (courierId === "Delhivery") {
-      shippingResponse = await createDelhiveryOrder(orderData);
-    } else if (courierId === "BlueDart") {
-      shippingResponse = await createBlueDartOrder(orderData);
+    if (courierId === "Ekart" || !courierId) {
+      shippingResponse = await createEkartOrder(orderData);
     } else {
-      return NextResponse.json({ success: false, error: "Invalid courier selected." }, { status: 400 });
+      shippingResponse = await createEkartOrder(orderData);
     }
 
     // 3. Return the tracking information to the frontend

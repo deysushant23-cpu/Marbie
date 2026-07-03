@@ -169,8 +169,12 @@ export default function LabelsPage() {
                  
                  return (
                    <div key={order.id} className="shipping-label">
+                     <div className="label-header" style={{ backgroundColor: "#2874f0", color: "#fff", borderBottom: "2px solid #000", padding: "10px" }}>
+                       <div style={{ fontSize: "16px", fontWeight: "900", letterSpacing: "2px" }}>EKART LOGISTICS</div>
+                       <div style={{ fontSize: "10px", opacity: 0.9 }}>SURFACE • PRIORITY DELIVERY</div>
+                     </div>
                      <div className="label-header">
-                       <h2 style={{ fontSize: "22px", fontWeight: "bold", margin: "0 0 4px 0", letterSpacing: "1px", fontFamily: "sans-serif" }}>MARBIE JEWELS</h2>
+                       <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: "0 0 4px 0", letterSpacing: "1px", fontFamily: "sans-serif" }}>MARBIE JEWELS</h2>
                        <p style={{ margin: 0, fontSize: "12px", textTransform: "uppercase" }}>Premium Fashion Jewelry</p>
                      </div>
                      
@@ -211,7 +215,7 @@ export default function LabelsPage() {
                      <div className="label-section" style={{ textAlign: "center", padding: "24px 16px" }}>
                        <div style={{ display: "inline-block", maxWidth: "100%", overflow: "hidden" }}>
                          <Barcode 
-                           value={order.awbCode || order.id.replace('#', '')} 
+                           value={order.awbCode || `EKART-${order.id.replace('#', '')}`} 
                            format="CODE128" 
                            width={2} 
                            height={60} 

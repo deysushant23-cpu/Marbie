@@ -210,8 +210,7 @@ export default function AdminOrders() {
                             id={`courier-${order.id}`}
                             style={{ padding: "4px 8px", fontSize: "12px", borderRadius: "4px", border: "1px solid #ccc", background: "#fff", color: "#000", height: "26px" }}
                           >
-                            <option value="Delhivery">Delhivery</option>
-                            <option value="BlueDart">Blue Dart</option>
+                            <option value="Ekart">Ekart Logistics</option>
                           </select>
                           <input 
                             type="number" 
