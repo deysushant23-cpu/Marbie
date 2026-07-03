@@ -102,16 +102,20 @@ export async function createEkartOrder(orderData: any) {
           return {
             success: true,
             awb_code: responseData.tracking_id || responseData.awb,
+            label_url: responseData.label_url || responseData.pdf_url,
             courier_name: "Ekart Logistics"
           };
         }
+      } else {
+        const errText = await res.text();
+        console.error("Live Ekart API Error:", res.status, errText);
       }
     } catch (err) {
-      console.warn("Ekart live API request fallback:", err);
+      console.error("Ekart live API request failed:", err);
     }
   }
 
-  // Fallback / simulation response ensuring robust system operation
+  // Fallback response when secret key is not yet active/configured
   return {
     success: true,
     awb_code: simulatedAwb,

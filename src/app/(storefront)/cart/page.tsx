@@ -23,12 +23,19 @@ export default function CartPage() {
 
   const hasGift = items.some(item => item.isGift);
 
-  // If there's a gift, default address to first gift location
+  // Initialize address from saved location or gift location
   React.useEffect(() => {
-    if (hasGift && !addressInput) {
-      const giftItem = items.find(item => item.isGift && item.giftLocation);
-      if (giftItem && giftItem.giftLocation) {
-        setAddressInput(giftItem.giftLocation);
+    if (!addressInput) {
+      if (hasGift) {
+        const giftItem = items.find(item => item.isGift && item.giftLocation);
+        if (giftItem && giftItem.giftLocation) {
+          setAddressInput(giftItem.giftLocation);
+          return;
+        }
+      }
+      const saved = typeof window !== "undefined" ? localStorage.getItem("marbie_saved_location") : null;
+      if (saved) {
+        setAddressInput(saved);
       }
     }
   }, [items, hasGift, addressInput]);
@@ -40,11 +47,24 @@ export default function CartPage() {
         async (pos) => {
           try {
             const { latitude, longitude } = pos.coords;
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              { headers: { "Accept-Language": "en" } }
+            );
             const data = await res.json();
             
-            if (data && data.display_name) {
-              const detectedAddress = data.display_name;
+            if (data && (data.address || data.display_name)) {
+              let detectedAddress = data.display_name;
+              if (data.address) {
+                const road = data.address.road || data.address.suburb || data.address.neighbourhood || data.address.residential || "";
+                const city = data.address.city || data.address.town || data.address.village || data.address.state_district || "";
+                const state = data.address.state || "";
+                const pin = data.address.postcode ? `- ${data.address.postcode}` : "";
+                const parts = [road, city, state].filter(Boolean);
+                if (parts.length >= 2) {
+                  detectedAddress = `${parts.join(", ")} ${pin}`.trim();
+                }
+              }
               updateCustomerLocation(detectedAddress);
               setAddressInput(detectedAddress);
             } else {
@@ -52,7 +72,7 @@ export default function CartPage() {
             }
           } catch (err) {
             console.error("Geocoding failed", err);
-            const fallback = `GPS (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`;
+            const fallback = `GPS Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)} (Please add Landmark/PIN)`;
             updateCustomerLocation(fallback);
             setAddressInput(fallback);
           } finally {
@@ -61,9 +81,10 @@ export default function CartPage() {
         },
         (error) => {
           console.error("GPS Error:", error);
-          alert("Could not access your location. Please check your browser permissions.");
+          alert("Could not access your location. Please check browser permissions or enter your complete address manually.");
           setIsLocating(false);
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       alert("Geolocation is not supported by your browser.");
@@ -86,8 +107,8 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
-    if (!addressInput.trim()) {
-      alert("Please provide a dispatch address or use your current location to proceed.");
+    if (!addressInput || !addressInput.trim() || addressInput.trim().length < 8) {
+      alert("⚠️ Delivery location cannot be empty! Please enter a complete delivery address (including Street/Landmark, City, and PIN Code) or click 'Use Current Location'.");
       return;
     }
     

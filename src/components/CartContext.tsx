@@ -123,10 +123,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateCustomerLocation = (location: string) => {
-    if (!customerUser) return;
-    const updated = { ...customerUser, location };
-    setCustomerUser(updated);
-    try { localStorage.setItem("marbie_customer_user", JSON.stringify(updated)); } catch {}
+    try { localStorage.setItem("marbie_saved_location", location); } catch {}
+    if (customerUser) {
+      const updated = { ...customerUser, location };
+      setCustomerUser(updated);
+      try { localStorage.setItem("marbie_customer_user", JSON.stringify(updated)); } catch {}
+    }
   };
 
   // Protected Action: Add To Cart

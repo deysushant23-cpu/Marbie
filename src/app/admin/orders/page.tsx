@@ -18,6 +18,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "highest" | "lowest">("newest");
 
   React.useEffect(() => {
     fetch("/api/orders")
@@ -28,22 +29,25 @@ export default function AdminOrders() {
       .catch((err) => console.error("Failed to fetch orders:", err));
   }, []);
 
-  const filteredOrders = orders.filter((order) => {
-    // Check status filter
-    if (statusFilter !== "ALL" && order.status !== statusFilter) {
-      return false;
-    }
-
-    // Check search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchId = (order.id || "").toString().toLowerCase().includes(query);
-      const matchName = (order.customerName || "").toLowerCase().includes(query);
-      if (!matchId && !matchName) return false;
-    }
-
-    return true;
-  });
+  const filteredOrders = orders
+    .filter((order) => {
+      if (statusFilter !== "ALL" && order.status !== statusFilter) {
+        return false;
+      }
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchId = (order.id || "").toString().toLowerCase().includes(query);
+        const matchName = (order.customerName || "").toLowerCase().includes(query);
+        if (!matchId && !matchName) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "highest") return b.amount - a.amount;
+      if (sortBy === "lowest") return a.amount - b.amount;
+      if (sortBy === "oldest") return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 
   const totalRevenue = orders.reduce((sum, o) => sum + o.amount, 0);
   const activeOrdersCount = orders.filter((o) => o.status === "PROCESSING" || o.status === "SHIPPED").length;
@@ -124,23 +128,43 @@ export default function AdminOrders() {
               Quick Filters
             </span>
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            {["ALL", "PROCESSING", "SHIPPED", "DELIVERED"].map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className="btn"
-                style={{
-                  backgroundColor: statusFilter === status ? "var(--color-primary)" : "var(--color-surface-container-high)",
-                  color: statusFilter === status ? "var(--color-on-primary)" : "var(--color-on-surface-variant)",
-                  fontSize: "10px",
-                  borderRadius: "2px",
-                  padding: "6px 16px",
-                }}
-              >
-                {status}
-              </button>
-            ))}
+          <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {["ALL", "PROCESSING", "SHIPPED", "DELIVERED"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  className="btn"
+                  style={{
+                    backgroundColor: statusFilter === status ? "var(--color-primary)" : "var(--color-surface-container-high)",
+                    color: statusFilter === status ? "var(--color-on-primary)" : "var(--color-on-surface-variant)",
+                    fontSize: "10px",
+                    borderRadius: "2px",
+                    padding: "6px 16px",
+                  }}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              style={{
+                padding: "6px 12px",
+                fontSize: "12px",
+                borderRadius: "4px",
+                border: "1px solid var(--color-outline)",
+                backgroundColor: "var(--color-surface)",
+                color: "var(--color-on-surface)",
+                cursor: "pointer",
+              }}
+            >
+              <option value="newest">Sort: Newest First</option>
+              <option value="oldest">Sort: Oldest First</option>
+              <option value="highest">Sort: Highest Amount</option>
+              <option value="lowest">Sort: Lowest Amount</option>
+            </select>
           </div>
         </div>
       </section>
