@@ -10,7 +10,8 @@ import { motion } from "framer-motion";
 interface Order {
   id: string;
   date: string;
-  total: number;
+  total?: number;
+  amount?: number;
   items: CartItem[];
   status: string;
   paymentMethod?: string;
@@ -40,12 +41,17 @@ export default function HistoryPage() {
       .catch(err => console.error("Could not sync server orders:", err));
   }, []);
 
-  const handleDownloadInvoice = async (order: Order) => {
+  const handleDownloadInvoice = async (order: any) => {
+    const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
     const rawPm = order.paymentMethod || "Secured Digital Payment";
-    const pm = rawPm === "Razorpay" ? "Verified Electronic Payment (Gateway)" : rawPm === "Online" ? "Verified Electronic Payment" : rawPm;
-    const isCOD = pm.toUpperCase().includes("COD") || pm.toLowerCase() === "cod";
-    const paymentStatusDisplay = isCOD ? "Cash on Delivery (Pending Collection)" : pm;
-    const paymentInfoDisplay = isCOD ? "Cash on Delivery (COD)<br>Payable upon receipt of package" : `${pm}<br>Marbie Secure Checkout • Verified`;
+    const isCOD = rawPm.toUpperCase().includes("COD") || rawPm.toLowerCase() === "cod";
+    const isDelivered = (order.status || "").toUpperCase() === "DELIVERED";
+    const paymentStatusDisplay = isCOD 
+      ? (isDelivered ? "PAID (Collected on Delivery)" : "PENDING (Cash on Delivery)") 
+      : "PAID ONLINE (Verified Gateway)";
+    const paymentInfoDisplay = isCOD 
+      ? "Cash on Delivery (COD)<br>Payable upon receipt of package" 
+      : `${rawPm === "Razorpay" ? "Razorpay Gateway" : rawPm}<br>Marbie Secure Checkout • Verified`;
     const htmlContent = `
 <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1e293b; padding: 48px; margin: 0 auto; max-width: 800px; background-color: #ffffff; box-sizing: border-box;">
   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -116,15 +122,15 @@ export default function HistoryPage() {
     <div style="width: 40%;">
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Subtotal</span>
-        <span>₹${order.total.toLocaleString()}</span>
+        <span>₹${orderTotal.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Courier / Shipping</span>
-        <span style="text-align: right; color: #2874f0; font-weight: 600;">Ekart Logistics (FREE)</span>
+        <span style="text-align: right; color: #2874f0; font-weight: 600;">FREE SHIPPING (₹0.00)</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>
-        <span>₹${order.total.toLocaleString()}</span>
+        <span>₹${orderTotal.toLocaleString()}</span>
       </div>
     </div>
   </div>
@@ -207,7 +213,7 @@ export default function HistoryPage() {
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <p style={{ fontSize: "20px", fontWeight: 600, color: "var(--color-primary)", marginBottom: "8px" }}>
-                    ₹{order.total.toLocaleString()}
+                    ₹{(order.total !== undefined ? order.total : (order as any).amount || 0).toLocaleString()}
                   </p>
                   <Link href={`/track-order?orderId=${order.id}`} style={{ textDecoration: "none" }}>
                     <span style={{ backgroundColor: "var(--color-surface-container-high)", color: "var(--color-on-surface)", padding: "4px 12px", borderRadius: "100px", fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer" }}>

@@ -10,8 +10,7 @@ export async function getEkartToken() {
   const clientSecret = process.env.EKART_CLIENT_SECRET;
 
   if (!clientSecret) {
-    // If secret is not provided in local dev, return simulation token
-    return "SIMULATED_EKART_TOKEN";
+    throw new Error("EKART_CLIENT_SECRET not configured. Labels and AWBs are managed directly from your Ekart Dashboard. Order statuses will be updated automatically via Webhook.");
   }
 
   try {
@@ -85,40 +84,35 @@ export async function createEkartOrder(orderData: any) {
     ]
   };
 
-  if (token !== "SIMULATED_EKART_TOKEN") {
-    try {
-      const res = await fetch(`${BASE_URL}/shipments/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+  try {
+    const res = await fetch(`${BASE_URL}/shipments/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
 
-      if (res.ok) {
-        const responseData = await res.json();
-        if (responseData && (responseData.tracking_id || responseData.awb)) {
-          return {
-            success: true,
-            awb_code: responseData.tracking_id || responseData.awb,
-            label_url: responseData.label_url || responseData.pdf_url,
-            courier_name: "Ekart Logistics"
-          };
-        }
-      } else {
-        const errText = await res.text();
-        console.error("Live Ekart API Error:", res.status, errText);
+    if (res.ok) {
+      const responseData = await res.json();
+      if (responseData && (responseData.tracking_id || responseData.awb)) {
+        return {
+          success: true,
+          awb_code: responseData.tracking_id || responseData.awb,
+          label_url: responseData.label_url || responseData.pdf_url,
+          courier_name: "Ekart Logistics"
+        };
       }
-    } catch (err) {
-      console.error("Ekart live API request failed:", err);
+    } else {
+      const errText = await res.text();
+      console.error("Live Ekart API Error:", res.status, errText);
+      throw new Error(`Ekart API Error: ${res.status} - ${errText}`);
     }
+  } catch (err: any) {
+    console.error("Ekart live API request failed:", err);
+    throw new Error(err.message || "Failed to create Ekart shipment.");
   }
 
-  // Fallback response when secret key is not yet active/configured
-  return {
-    success: true,
-    awb_code: simulatedAwb,
-    courier_name: "Ekart Logistics"
-  };
+  throw new Error("Failed to generate AWB code from Ekart Logistics API.");
 }
