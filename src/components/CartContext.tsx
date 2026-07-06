@@ -14,6 +14,7 @@ export interface CartItem {
   quantity: number;
   isGift?: boolean;
   giftLocation?: string;
+  weight?: string | number;
 }
 
 export interface CustomerUser {

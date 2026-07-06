@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart, CartItem } from "@/components/CartContext";
-import { calculateEkartShippingRate } from "@/lib/ekart";
+import { calculateEkartShippingRate, calculateCombinedWeight } from "@/lib/ekart";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Script from "next/script";
@@ -42,7 +42,7 @@ export default function CartPage() {
   const isEligibleForDiscount = isFirstOrder && count >= 2;
   const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
   const voucherDiscountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
-  const totalWeightGrams = items.reduce((sum, item) => sum + ((item.quantity || 1) * 500), 0) || 500;
+  const totalWeightGrams = calculateCombinedWeight(items);
   const ekartShipping = calculateEkartShippingRate(totalWeightGrams, addressInput, paymentMethod, total);
   const shippingFee = items.length > 0 ? ekartShipping.fee : 0;
   const finalTotal = Math.max(0, total - discountAmount - voucherDiscountAmount) + shippingFee;

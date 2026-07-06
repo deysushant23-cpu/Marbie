@@ -59,7 +59,7 @@ export default function HistoryPage() {
 
   const handleDownloadInvoice = async (order: any) => {
     const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
-    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 80);
+    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 65);
     const courierName = order.shippingAddress?.courier || "Ekart Logistics Elite";
     const subtotal = Math.max(0, orderTotal - shippingFee);
     const rawPm = order.paymentMethod || "Secured Digital Payment";
@@ -157,7 +157,7 @@ export default function HistoryPage() {
   <div style="text-align: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b; line-height: 1.6;">
     <strong style="color: #0f172a;">Marbie Jewels • Official Commercial Invoice</strong><br>
     For order assistance, support, or verification, contact Owner/Management directly:<br>
-    <strong>Baisakhi Kanthariya</strong> | Email: <strong>marbiejewels4@gmail.com</strong> | Web: <strong>www.marbie.com</strong>
+    <strong>Baisakhi Kanthariya</strong> | Email: <strong>marbiejewels4@gmail.com</strong> | Web: <strong>www.marbiejewels.com</strong>
   </div>
 </div>`;
 
@@ -190,7 +190,42 @@ export default function HistoryPage() {
     }
   };
 
-
+  const handleCancelOrder = async (order: any) => {
+    if (!confirm("Are you sure you want to cancel this order? As per our policy, orders can only be cancelled before dispatch.")) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: order.id, status: "CANCELLED" }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setOrders(orders.map(o => o.id === order.id ? { ...o, status: "CANCELLED" } : o));
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to cancel order.");
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      const saved = localStorage.getItem("orderHistory");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const updatedHistory = parsed.map((o: any) => o.id === order.id ? { ...o, status: "CANCELLED" } : o);
+          localStorage.setItem("orderHistory", JSON.stringify(updatedHistory));
+        }
+      }
+      setOrders(orders.map(o => o.id === order.id ? { ...o, status: "CANCELLED" } : o));
+    } catch (e) {
+      console.error(e);
+    }
+    alert("Your order has been cancelled successfully.");
+  };
 
   return (
     <div className="container" style={{ paddingTop: "120px", paddingBottom: "120px", minHeight: "80vh" }}>
@@ -270,6 +305,33 @@ export default function HistoryPage() {
                 >
                   DOWNLOAD INVOICE
                 </button>
+                {(() => {
+                  const status = (order.status || "").toUpperCase();
+                  const isDispatched = ["SHIPPED", "DELIVERED", "DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(status);
+                  const isCancelled = status === "CANCELLED";
+                  const isRefunded = status === "REFUNDED";
+
+                  if (isCancelled || isRefunded) return null;
+
+                  if (isDispatched) {
+                    return (
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", backgroundColor: "rgba(239, 68, 68, 0.08)", borderRadius: "4px", border: "1px dashed rgba(239, 68, 68, 0.3)", color: "var(--color-error)", fontSize: "11px", fontWeight: "600" }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>info</span>
+                        Parcel Dispatched (Cannot Cancel)
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <button 
+                      className="btn-primary hover-scale" 
+                      onClick={() => handleCancelOrder(order)}
+                      style={{ width: "auto", padding: "12px 24px", backgroundColor: "transparent", color: "var(--color-error)", border: "1px solid var(--color-error)" }}
+                    >
+                      CANCEL ORDER
+                    </button>
+                  );
+                })()}
               </div>
             </motion.div>
           ))}

@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { calculateEkartShippingRate } from "@/lib/ekart";
+import { calculateEkartShippingRate, calculateCombinedWeight } from "@/lib/ekart";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { deliveryPincode, weight, paymentMethod, orderAmount } = body;
+    const { deliveryPincode, weight, paymentMethod, orderAmount, items } = body;
+
+    let weightGrams = 150;
+    if (items && Array.isArray(items) && items.length > 0) {
+      weightGrams = calculateCombinedWeight(items);
+    } else if (weight !== undefined && weight !== null && weight !== "") {
+      if (typeof weight === "number" && !isNaN(weight) && weight > 0) {
+        weightGrams = weight <= 5 ? weight * 1000 : weight; // If <= 5, assume kg
+      } else if (typeof weight === "string") {
+        const str = weight.toLowerCase().trim();
+        const num = parseFloat(str.replace(/[^0-9.]/g, ""));
+        if (!isNaN(num) && num > 0) {
+          weightGrams = str.includes("kg") ? num * 1000 : num;
+        }
+      }
+    }
 
     const rate = calculateEkartShippingRate(
-      Number(weight) ? Number(weight) * 1000 : 500,
+      weightGrams,
       deliveryPincode,
       paymentMethod || "Online",
       Number(orderAmount) || 0
@@ -35,7 +50,7 @@ export async function POST(request: NextRequest) {
       courier: "Ekart Logistics Elite",
       days: 4,
       estimatedDeliveryDate: new Date(Date.now() + 4 * 86400000).toISOString(),
-      shippingFee: 80,
+      shippingFee: 65,
       zone: "National"
     });
   }

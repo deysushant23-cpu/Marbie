@@ -130,7 +130,7 @@ export async function createEkartOrder(orderData: any) {
       commodity_value: String(taxableAmount),
       cod_amount: codAmount,
       quantity: 1,
-      weight: Number(orderData.weight || 500), // in grams
+      weight: Number(orderData.weight || 150), // in grams
       length: 15, // cm
       width: 10,  // cm
       height: 5,  // cm
@@ -262,40 +262,79 @@ export async function trackEkartShipment(waybill: string) {
 }
 
 // 5. Calculate Ekart Shipping Rates (Estimate V1 / Elite pricing spec)
-export function calculateEkartShippingRate(weightGrams: number = 500, pincode?: string | number, paymentMethod: string = "Online", orderAmount: number = 0) {
-  const slabs = Math.max(1, Math.ceil((weightGrams || 500) / 500));
+export function calculateEkartShippingRate(weightGrams: number = 150, pincode?: string | number, paymentMethod: string = "Online", orderAmount: number = 0) {
+  const w = weightGrams || 150;
   const pinStr = String(pincode || "").replace(/\D/g, "").slice(0, 6);
   
-  let baseRate = 80; // Standard national rate per 500g slab
+  // Flat pricing details based on weight slabs as per regulation
+  let flatPrice = 65; // 0 - 500g
+  if (w <= 500) {
+    flatPrice = 65;
+  } else if (w <= 1000) {
+    flatPrice = 75; // 500g - 1kg
+  } else if (w <= 2000) {
+    flatPrice = 90; // 1kg - 2kg
+  } else {
+    flatPrice = 90 + Math.ceil((w - 2000) / 500) * 20; // Additional weight over 2kg
+  }
+
   let zone = "National (Rest of India)";
   let days = 4;
 
   if (pinStr.startsWith("38") || pinStr.startsWith("39")) {
-    baseRate = 50; // Gujarat Local Zone (near Surat warehouse)
     zone = "Local Zone (Gujarat)";
     days = 2;
   } else if (["11", "40", "41", "56", "57", "60", "70"].some(prefix => pinStr.startsWith(prefix))) {
-    baseRate = 70; // Metro Cities Zone (Delhi, Mumbai, Pune, Bangalore, Chennai, Kolkata)
     zone = "Metro Zone";
     days = 3;
   } else if (["78", "79", "18", "19", "74"].some(prefix => pinStr.startsWith(prefix))) {
-    baseRate = 120; // Special Remote Zone (North-East, J&K, Ladakh, Andaman)
     zone = "Remote Zone";
     days = 5;
   }
 
-  const isCOD = paymentMethod.toLowerCase().includes("cod");
-  const codCharge = isCOD ? Math.max(40, Math.round(orderAmount * 0.02)) : 0;
-  const totalFee = (baseRate * slabs) + codCharge;
+  // Regulation states COD CHARGES: ₹0 (Free) and RTO CHARGES: ₹0 (Free)
+  const codCharge = 0;
+  const totalFee = flatPrice + codCharge;
+  const slabs = Math.max(1, Math.ceil(w / 500));
 
   return {
     fee: totalFee,
-    baseRate: baseRate * slabs,
+    baseRate: flatPrice,
     codCharge: codCharge,
     slabs: slabs,
     zone: zone,
     days: days,
     courier: "Ekart Logistics Elite"
   };
+}
+
+// Safe helper to calculate combined weight of multiple items/products in a session/order
+export function calculateCombinedWeight(items: any[] = []): number {
+  if (!Array.isArray(items) || items.length === 0) return 150; // Default shipment weight
+  
+  const totalWeight = items.reduce((sum, item) => {
+    if (!item) return sum + 50;
+    let w = 50; // Default jewelry piece weight is ~50g
+    const qty = typeof item.quantity === "number" && !isNaN(item.quantity) && item.quantity > 0 ? item.quantity : 1;
+    
+    if (item.weight !== undefined && item.weight !== null && item.weight !== "") {
+      if (typeof item.weight === "number" && !isNaN(item.weight) && item.weight > 0) {
+        w = item.weight <= 5 ? item.weight * 1000 : item.weight; // If <= 5, assume kg
+      } else if (typeof item.weight === "string") {
+        const str = item.weight.toLowerCase().trim();
+        const num = parseFloat(str.replace(/[^0-9.]/g, ""));
+        if (!isNaN(num) && num > 0) {
+          if (str.includes("kg")) {
+            w = num * 1000;
+          } else {
+            w = num;
+          }
+        }
+      }
+    }
+    return sum + (qty * w);
+  }, 0);
+
+  return totalWeight + (items.length > 0 ? 100 : 0); // +100g standard protective packaging box weight
 }
 

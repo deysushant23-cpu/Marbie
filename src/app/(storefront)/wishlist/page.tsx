@@ -9,7 +9,7 @@ export default function WishlistPage() {
   const { wishlistItems, addToCart, removeFromWishlist } = useCart();
 
   const handleMoveToBag = (item: any) => {
-    addToCart({ id: item.id, name: item.name, price: item.price, image: item.image });
+    addToCart({ id: item.id, name: item.name, price: item.price, image: item.image, weight: item.weight });
     removeFromWishlist(item.id);
   };
 

@@ -52,7 +52,7 @@ class InvoicePDF(FPDF):
         self.cell(0, 4, "Marbie Jewels - Official Commercial Invoice", 0, 1, "C")
         self.cell(0, 4, "For order assistance, support, or verification, contact Owner/Management directly:", 0, 1, "C")
         self.set_font("Helvetica", "B", 8)
-        self.cell(0, 4, "Baisakhi Kanthariya | Email: marbiejewels4@gmail.com | Web: www.marbie.com", 0, 1, "C")
+        self.cell(0, 4, "Baisakhi Kanthariya | Email: marbiejewels4@gmail.com | Web: www.marbiejewels.com", 0, 1, "C")
 
 def create_sample_invoice(filename="Sample_Invoice_Marbie_Jewels.pdf"):
     pdf = InvoicePDF(orientation="P", unit="mm", format="A4")

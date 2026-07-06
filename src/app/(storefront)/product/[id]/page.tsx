@@ -110,6 +110,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       name: product.name,
       price: product.price,
       image: product.image,
+      weight: product.weight,
     });
     
     // Smooth visual feedback
@@ -135,6 +136,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       name: product.name,
       price: product.price,
       image: product.image,
+      weight: product.weight,
       isGift: true,
       giftLocation: giftLocation.trim()
     });

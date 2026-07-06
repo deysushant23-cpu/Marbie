@@ -50,7 +50,7 @@ function TrackOrderContent() {
 
   const handleDownloadInvoice = async (order: any) => {
     const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
-    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 80);
+    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 65);
     const courierName = order.shippingAddress?.courier || "Ekart Logistics Elite";
     const subtotal = Math.max(0, orderTotal - shippingFee);
     const rawPm = order.paymentMethod || "Secured Digital Payment";
@@ -148,7 +148,7 @@ function TrackOrderContent() {
   <div style="text-align: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b; line-height: 1.6;">
     <strong style="color: #0f172a;">Marbie Jewels • Official Commercial Invoice</strong><br>
     For order assistance, support, or verification, contact Owner/Management directly:<br>
-    <strong>Baisakhi Kanthariya</strong> | Email: <strong>marbiejewels4@gmail.com</strong> | Web: <strong>www.marbie.com</strong>
+    <strong>Baisakhi Kanthariya</strong> | Email: <strong>marbiejewels4@gmail.com</strong> | Web: <strong>www.marbiejewels.com</strong>
   </div>
 </div>`;
 
@@ -179,6 +179,52 @@ function TrackOrderContent() {
     } finally {
       document.body.removeChild(container);
     }
+  };
+
+  const handleCancelOrder = async (order: any) => {
+    if (!confirm("Are you sure you want to cancel this order? As per our policy, orders can only be cancelled before dispatch.")) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: order.id, status: "CANCELLED" }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setOrderDetails(updated);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to cancel order.");
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      const saved = localStorage.getItem("orderHistory");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const updatedHistory = parsed.map((o: any) => o.id === order.id ? { ...o, status: "CANCELLED" } : o);
+          localStorage.setItem("orderHistory", JSON.stringify(updatedHistory));
+        }
+      }
+      const recent = localStorage.getItem("recentOrder");
+      if (recent) {
+        const parsedRecent = JSON.parse(recent);
+        if (parsedRecent && parsedRecent.id === order.id) {
+          localStorage.setItem("recentOrder", JSON.stringify({ ...parsedRecent, status: "CANCELLED" }));
+        }
+      }
+      if (orderDetails && orderDetails.id === order.id) {
+        setOrderDetails({ ...orderDetails, status: "CANCELLED" });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    alert("Your order has been cancelled successfully.");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -452,6 +498,57 @@ function TrackOrderContent() {
                   </button>
                 </div>
               )}
+              {/* Cancel Order Section */}
+              {orderDetails && (() => {
+                const status = (orderDetails.status || "").toUpperCase();
+                const isDispatched = ["SHIPPED", "DELIVERED", "DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(status);
+                const isCancelled = status === "CANCELLED";
+                const isRefunded = status === "REFUNDED";
+
+                if (isCancelled || isRefunded) return null;
+
+                return (
+                  <div style={{ textAlign: "center", paddingTop: "16px", paddingBottom: "16px", borderBottom: "1px solid var(--color-outline-variant)" }}>
+                    {isDispatched ? (
+                      <div style={{ padding: "12px", background: "rgba(239, 68, 68, 0.08)", borderRadius: "8px", border: "1px dashed rgba(239, 68, 68, 0.3)" }}>
+                        <p style={{ fontSize: "12px", color: "var(--color-error)", fontWeight: "600", margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>info</span>
+                          Parcel Dispatched: Cannot be cancelled
+                        </p>
+                        <p style={{ fontSize: "11px", color: "var(--color-on-surface-variant)", margin: "4px 0 0 0" }}>
+                          As per regulation, orders dispatched from warehouse cannot be cancelled.
+                        </p>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleCancelOrder(orderDetails)}
+                        className="btn-outline hover-scale"
+                        style={{
+                          width: "100%",
+                          padding: "12px 24px",
+                          backgroundColor: "transparent",
+                          color: "var(--color-error)",
+                          border: "1px solid var(--color-error)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          borderRadius: "4px"
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                          cancel
+                        </span>
+                        Cancel Order
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
               {/* Support Button */}
               <div style={{ textAlign: "center", paddingTop: "16px" }}>
                 <p style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", marginBottom: "16px" }}>

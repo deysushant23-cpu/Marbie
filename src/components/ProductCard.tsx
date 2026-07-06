@@ -19,6 +19,7 @@ export interface ProductProps {
   colors?: { name: string; hex: string }[];
   originalPrice?: number;
   images?: string[];
+  weight?: string | number;
 }
 
 export default function ProductCard({ product }: { product: ProductProps }) {
@@ -36,7 +37,8 @@ export default function ProductCard({ product }: { product: ProductProps }) {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image
+        image: product.image,
+        weight: product.weight
       });
     }
   };
@@ -48,7 +50,8 @@ export default function ProductCard({ product }: { product: ProductProps }) {
       id: product.id, 
       name: product.name, 
       price: product.price, 
-      image: product.image 
+      image: product.image,
+      weight: product.weight
     });
   };
 

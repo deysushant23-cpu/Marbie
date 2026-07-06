@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+import { calculateEkartShippingRate, calculateCombinedWeight } from "@/lib/ekart";
 
 export async function GET(request: NextRequest) {
   const authCookie = request.cookies.get("admin_token")?.value;
@@ -56,6 +57,12 @@ export async function POST(request: NextRequest) {
     if (body.id) {
       const existing = await prisma.order.findUnique({ where: { id: body.id } });
       if (existing) {
+        if (body.status === "CANCELLED" || body.status === "Cancelled") {
+          const currentStatus = (existing.status || "").toUpperCase();
+          if (["SHIPPED", "DELIVERED", "DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(currentStatus)) {
+            return Response.json({ error: "Order cannot be cancelled after parcel has been dispatched." }, { status: 400 });
+          }
+        }
         const updated = await prisma.order.update({
           where: { id: body.id },
           data: {
@@ -71,11 +78,15 @@ export async function POST(request: NextRequest) {
     }
 
     const addr = typeof body.shippingAddress === 'object' && body.shippingAddress !== null ? body.shippingAddress : (typeof body.shippingAddress === 'string' ? JSON.parse(body.shippingAddress || "{}") : {});
+    const itemsList = Array.isArray(body.items) ? body.items : [];
+    const calculatedShipping = calculateEkartShippingRate(calculateCombinedWeight(itemsList), addr.zipCode || addr.pincode, body.paymentMethod || "Online", Number(body.amount) || 0);
     const finalShippingAddress = {
       ...addr,
       email: body.email || addr.email || "",
       phone: body.phone || addr.phone || "",
-      userId: body.userId || addr.userId || ""
+      userId: body.userId || addr.userId || "",
+      shippingFee: addr.shippingFee !== undefined ? addr.shippingFee : (body.shippingFee !== undefined ? body.shippingFee : calculatedShipping.fee),
+      courier: addr.courier || calculatedShipping.courier
     };
 
     const newId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
