@@ -41,6 +41,17 @@ export default function LabelsPage() {
     window.print();
   };
 
+  const handleDownloadAuthenticEkartPdf = () => {
+    if (selectedIds.length === 0) {
+      alert("Please select at least one order to download.");
+      return;
+    }
+    const selectedOrders = orders.filter(o => selectedIds.includes(o.id));
+    const firstOrderWithAwb = selectedOrders.find(o => o.awbCode || o.trackingPartner === "Ekart Logistics") || selectedOrders[0];
+    const targetWbn = firstOrderWithAwb?.awbCode || firstOrderWithAwb?.id.replace('#', '') || "";
+    window.open(`/api/admin/shipping/label?wbn=${targetWbn}`, '_blank');
+  };
+
   const toggleSelection = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
@@ -106,6 +117,14 @@ export default function LabelsPage() {
           <Link href="/admin/orders">
             <button className="btn" style={{ padding: "12px 24px", border: "1px solid #ccc", background: "#fff", cursor: "pointer", borderRadius: "4px" }}>Back to Orders</button>
           </Link>
+          <button 
+            onClick={handleDownloadAuthenticEkartPdf} 
+            disabled={selectedIds.length === 0} 
+            style={{ padding: "12px 20px", cursor: selectedIds.length === 0 ? "not-allowed" : "pointer", backgroundColor: selectedIds.length === 0 ? "#ccc" : "#1a56db", color: "white", border: "none", borderRadius: "4px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>picture_as_pdf</span>
+            Download Official Ekart PDF
+          </button>
           <button className="btn-primary" onClick={handlePrint} disabled={selectedIds.length === 0} style={{ padding: "12px 24px", cursor: selectedIds.length === 0 ? "not-allowed" : "pointer", backgroundColor: selectedIds.length === 0 ? "#ccc" : "#063b2f", color: "white", border: "none", borderRadius: "4px" }}>
             <span className="material-symbols-outlined" style={{ verticalAlign: "middle", marginRight: "8px", fontSize: "18px" }}>print</span>
             Print {selectedIds.length} Labels
@@ -226,6 +245,17 @@ export default function LabelsPage() {
                            margin={0}
                          />
                        </div>
+                     </div>
+                     <div className="print-hide" style={{ textAlign: "center", padding: "12px", backgroundColor: "#f0f4f8", borderTop: "1px dashed #ccc", borderBottom: "1px dashed #ccc" }}>
+                       <a 
+                         href={`/api/admin/shipping/label?wbn=${order.awbCode || order.id.replace('#', '')}`} 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         style={{ color: "#1a56db", fontSize: "13px", fontWeight: "bold", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                       >
+                         <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>download</span>
+                         Download Authentic Ekart Logistics PDF Label
+                       </a>
                      </div>
                      
                      <div className="label-section">

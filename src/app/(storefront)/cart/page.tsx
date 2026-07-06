@@ -10,7 +10,7 @@ import Image from "next/image";
 import Script from "next/script";
 
 export default function CartPage() {
-  const { items, total, clearCart, updateQuantity, removeFromCart, moveToWishlist, updateCustomerLocation } = useCart();
+  const { items, total, count, clearCart, updateQuantity, removeFromCart, moveToWishlist, updateCustomerLocation } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
   
@@ -20,6 +20,21 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [addressInput, setAddressInput] = useState("");
   const [isLocating, setIsLocating] = useState(false);
+  const [isFirstOrder, setIsFirstOrder] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const discountUsed = localStorage.getItem("marbie_first_order_discount_used");
+      const orderHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+      if (!discountUsed && orderHistory.length === 0) {
+        setIsFirstOrder(true);
+      }
+    }
+  }, []);
+
+  const isEligibleForDiscount = isFirstOrder && count >= 2;
+  const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
+  const finalTotal = total - discountAmount;
 
   const hasGift = items.some(item => item.isGift);
 
@@ -126,7 +141,7 @@ export default function CartPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: total,
+            amount: finalTotal,
             status: "PROCESSING",
             paymentMethod: detailedPaymentMethod,
             customerName: session?.user?.name || "Couture Client",
@@ -145,7 +160,7 @@ export default function CartPage() {
         const newOrder = {
           id: newOrderResponse.id || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
-          total: total,
+          total: finalTotal,
           items: [...items],
           status: "PROCESSING",
           paymentMethod: detailedPaymentMethod
@@ -153,6 +168,11 @@ export default function CartPage() {
         
         const existingHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
         localStorage.setItem("orderHistory", JSON.stringify([newOrder, ...existingHistory]));
+
+        if (isEligibleForDiscount) {
+          localStorage.setItem("marbie_first_order_discount_used", "true");
+          setIsFirstOrder(false);
+        }
 
         clearCart();
         router.push("/history");
@@ -163,7 +183,7 @@ export default function CartPage() {
       const orderRes = await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total }),
+        body: JSON.stringify({ amount: finalTotal }),
       });
       const orderData = await orderRes.json();
 
@@ -198,7 +218,7 @@ export default function CartPage() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                amount: total,
+                amount: finalTotal,
                 status: "PROCESSING",
                 paymentMethod: detailedPaymentMethod,
                 customerName: session?.user?.name || "Couture Client",
@@ -217,7 +237,7 @@ export default function CartPage() {
             const newOrder = {
               id: newOrderResponse.id || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`,
               date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
-              total: total,
+              total: finalTotal,
               items: [...items],
               status: "PROCESSING",
               paymentMethod: detailedPaymentMethod,
@@ -226,6 +246,11 @@ export default function CartPage() {
             
             const existingHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
             localStorage.setItem("orderHistory", JSON.stringify([newOrder, ...existingHistory]));
+
+            if (isEligibleForDiscount) {
+              localStorage.setItem("marbie_first_order_discount_used", "true");
+              setIsFirstOrder(false);
+            }
 
             clearCart();
             router.push("/history");
@@ -279,6 +304,27 @@ export default function CartPage() {
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "48px", alignItems: "start" }}>
+          {isFirstOrder && (
+            <div style={{ gridColumn: "1 / -1", marginBottom: "-16px" }}>
+              {count < 2 ? (
+                <div style={{ backgroundColor: "var(--color-surface)", color: "var(--color-primary)", padding: "16px 24px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "16px", border: "1px solid var(--color-secondary)", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "var(--color-secondary)", flexShrink: 0 }}>card_giftcard</span>
+                  <div>
+                    <strong style={{ display: "block", fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-primary)", marginBottom: "4px" }}>🎁 Welcome Offer: Unlock 10% Off!</strong>
+                    <span style={{ fontSize: "14px", color: "var(--color-on-surface-variant)" }}>You are shopping as a new customer! Add <strong>{2 - count} more item{2 - count > 1 ? "s" : ""}</strong> to your bag to instantly receive a <strong>10% First-Order Discount</strong> on your entire purchase!</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ backgroundColor: "#063b2f", color: "#ffffff", padding: "16px 24px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "16px", border: "2px solid #d4af37", boxShadow: "0 6px 20px rgba(6,59,47,0.2)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#d4af37", flexShrink: 0 }}>verified</span>
+                  <div>
+                    <strong style={{ display: "block", fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#d4af37", marginBottom: "4px" }}>🎉 10% First-Order Discount Unlocked!</strong>
+                    <span style={{ fontSize: "14px", color: "#ffffff", opacity: 0.95 }}>Congratulations! You have 2+ items in your bag as a new customer. You are saving <strong>₹{discountAmount.toLocaleString()} (10% OFF)</strong> on your first luxury purchase!</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <div className="cart-items">
             <AnimatePresence>
               {items.map((item) => (
@@ -378,6 +424,15 @@ export default function CartPage() {
               <span>Subtotal</span>
               <span>₹{total.toLocaleString()}</span>
             </div>
+            {isEligibleForDiscount && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", color: "#063b2f", fontWeight: 700, backgroundColor: "rgba(6,59,47,0.06)", padding: "10px 12px", borderRadius: "6px", border: "1px dashed #063b2f" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#d4af37" }}>local_offer</span>
+                  First-Order Discount (10%)
+                </span>
+                <span>- ₹{discountAmount.toLocaleString()}</span>
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", color: "var(--color-on-surface-variant)" }}>
               <span>Shipping</span>
               <span>Free</span>
@@ -385,7 +440,7 @@ export default function CartPage() {
             
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-outline-variant)", fontWeight: 700, fontSize: "18px", color: "var(--color-primary)" }}>
               <span>Total</span>
-              <span>₹{total.toLocaleString()}</span>
+              <span>₹{finalTotal.toLocaleString()}</span>
             </div>
 
             <div style={{ marginBottom: "32px" }}>
@@ -438,7 +493,7 @@ export default function CartPage() {
               ) : (
                 <>
                   <span className="material-symbols-outlined">lock</span>
-                  PAY ₹{total.toLocaleString()} SECURELY
+                  PAY ₹{finalTotal.toLocaleString()} SECURELY
                 </>
               )}
             </button>
