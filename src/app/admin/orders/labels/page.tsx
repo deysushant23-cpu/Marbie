@@ -231,7 +231,7 @@ export default function LabelsPage() {
                      <div className="label-section">
                        <p style={{ margin: "0 0 6px 0", fontWeight: "bold", fontSize: "13px" }}>Return Address:</p>
                        <p style={{ margin: 0, fontSize: "13px", lineHeight: "1.4", whiteSpace: "pre-line" }}>
-                         {process.env.NEXT_PUBLIC_RETURN_ADDRESS || "Marbie Jewels\nSurat, Gujarat, India\nsupport@marbiejewels.com"}
+                         {"Marbie Jewels\n1/2308 khanderaopura near khan bakery, nanpura\nSurat, Gujarat - 395001\nPhone: 8160143146 | GST: 24BBOPR0323M1ZG"}
                        </p>
                      </div>
                    </div>
