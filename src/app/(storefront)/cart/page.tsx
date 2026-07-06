@@ -22,6 +22,12 @@ export default function CartPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [isFirstOrder, setIsFirstOrder] = useState(false);
 
+  // Voucher State
+  const [voucherInput, setVoucherInput] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number; message: string } | null>(null);
+  const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const discountUsed = localStorage.getItem("marbie_first_order_discount_used");
@@ -34,7 +40,37 @@ export default function CartPage() {
 
   const isEligibleForDiscount = isFirstOrder && count >= 2;
   const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
-  const finalTotal = total - discountAmount;
+  const voucherDiscountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
+  const finalTotal = Math.max(0, total - discountAmount - voucherDiscountAmount);
+
+  const handleApplyVoucher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!voucherInput.trim()) return;
+    setIsValidatingVoucher(true);
+    setVoucherError(null);
+    try {
+      const res = await fetch("/api/vouchers/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: voucherInput, orderAmount: total }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Invalid voucher code.");
+      }
+      setAppliedVoucher({
+        code: data.code,
+        discountAmount: data.discountAmount,
+        message: data.message,
+      });
+      setVoucherInput("");
+    } catch (err: any) {
+      setVoucherError(err.message);
+      setAppliedVoucher(null);
+    } finally {
+      setIsValidatingVoucher(false);
+    }
+  };
 
   const hasGift = items.some(item => item.isGift);
 
@@ -174,6 +210,14 @@ export default function CartPage() {
           setIsFirstOrder(false);
         }
 
+        if (appliedVoucher) {
+          fetch("/api/vouchers/claim", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: appliedVoucher.code }),
+          }).catch(err => console.error("Failed to claim voucher:", err));
+        }
+
         clearCart();
         router.push("/history");
         return;
@@ -250,6 +294,14 @@ export default function CartPage() {
             if (isEligibleForDiscount) {
               localStorage.setItem("marbie_first_order_discount_used", "true");
               setIsFirstOrder(false);
+            }
+
+            if (appliedVoucher) {
+              fetch("/api/vouchers/claim", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: appliedVoucher.code }),
+              }).catch(err => console.error("Failed to claim voucher:", err));
             }
 
             clearCart();
@@ -419,6 +471,42 @@ export default function CartPage() {
 
             <div style={{ backgroundColor: "var(--color-surface)", padding: "32px", border: "1px solid var(--color-outline-variant)" }}>
               <h2 style={{ fontSize: "18px", color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "24px" }}>Order Summary</h2>
+
+              {/* Voucher Code Input */}
+              <div style={{ marginBottom: "24px", paddingBottom: "24px", borderBottom: "1px dashed var(--color-outline-variant)" }}>
+                <form onSubmit={handleApplyVoucher} style={{ display: "flex", gap: "8px" }}>
+                  <input
+                    type="text"
+                    placeholder="Enter Voucher / Coupon Code"
+                    value={voucherInput}
+                    onChange={(e) => {
+                      setVoucherInput(e.target.value.toUpperCase());
+                      setVoucherError(null);
+                    }}
+                    disabled={!!appliedVoucher || isValidatingVoucher}
+                    style={{ flex: 1, padding: "10px 14px", borderRadius: "6px", border: "1px solid var(--color-outline-variant)", background: "var(--color-surface-container)", fontSize: "13px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", outline: "none" }}
+                  />
+                  {appliedVoucher ? (
+                    <button
+                      type="button"
+                      onClick={() => setAppliedVoucher(null)}
+                      style={{ padding: "10px 14px", background: "rgba(186, 26, 26, 0.1)", color: "#ba1a1a", border: "none", borderRadius: "6px", fontWeight: 700, fontSize: "12px", cursor: "pointer" }}
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={!voucherInput.trim() || isValidatingVoucher}
+                      style={{ padding: "10px 16px", background: !voucherInput.trim() ? "#ccc" : "#063b2f", color: "#ffffff", border: "none", borderRadius: "6px", fontWeight: 700, fontSize: "12px", cursor: !voucherInput.trim() ? "not-allowed" : "pointer" }}
+                    >
+                      {isValidatingVoucher ? "..." : "Apply"}
+                    </button>
+                  )}
+                </form>
+                {voucherError && <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#ba1a1a", fontWeight: 600 }}>⚠️ {voucherError}</p>}
+                {appliedVoucher && <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#063b2f", fontWeight: 700 }}>🎉 {appliedVoucher.message}</p>}
+              </div>
             
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", color: "var(--color-on-surface-variant)" }}>
               <span>Subtotal</span>
@@ -431,6 +519,15 @@ export default function CartPage() {
                   First-Order Discount (10%)
                 </span>
                 <span>- ₹{discountAmount.toLocaleString()}</span>
+              </div>
+            )}
+            {appliedVoucher && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", color: "#1a56db", fontWeight: 700, backgroundColor: "rgba(26,86,219,0.06)", padding: "10px 12px", borderRadius: "6px", border: "1px dashed #1a56db" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#1a56db" }}>confirmation_number</span>
+                  Voucher ({appliedVoucher.code})
+                </span>
+                <span>- ₹{voucherDiscountAmount.toLocaleString()}</span>
               </div>
             )}
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", color: "var(--color-on-surface-variant)" }}>

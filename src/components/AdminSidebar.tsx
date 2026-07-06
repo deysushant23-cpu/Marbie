@@ -79,6 +79,14 @@ export default function AdminSidebar({
             <span>Orders</span>
           </Link>
           <Link
+            className={`nav-link ${pathname === "/admin/vouchers" ? "active" : ""}`}
+            href="/admin/vouchers"
+            onClick={() => setIsMobileActive(false)}
+          >
+            <span className="material-symbols-outlined">local_activity</span>
+            <span>Vouchers</span>
+          </Link>
+          <Link
             className={`nav-link ${pathname === "/admin/customers" ? "active" : ""}`}
             href="/admin/customers"
             onClick={() => setIsMobileActive(false)}
