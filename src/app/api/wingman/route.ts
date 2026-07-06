@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         reply = "I might not have all the answers to life's mysteries, but I'm an expert at styling! ✨ Let's focus on finding you the perfect piece of jewelry. Are you looking for a gift, or something for yourself?";
         matchedProducts = [];
       } else if (matchedProducts.length > 0) {
-        reply = "I searched our royal vaults and found these matching pieces just for you:";
+        reply = "I searched our exclusive vaults and found these matching pieces just for you:";
       } else {
         reply = "Hmm, I couldn't find exactly what you described in our current collection. Could you tell me a bit more? For example, you can say 'gold rings' or 'gifts under 5000'.";
       }
@@ -97,6 +97,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Wingman API Error:", error);
-    return Response.json({ reply: "I seem to have lost my connection to the royal vault. Please try again in a moment." }, { status: 500 });
+    return Response.json({ reply: "I seem to have lost my connection to the vault. Please try again in a moment." }, { status: 500 });
   }
 }

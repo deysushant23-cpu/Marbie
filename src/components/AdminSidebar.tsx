@@ -137,7 +137,7 @@ export default function AdminSidebar({
           </div>
           <button
             onClick={async () => {
-              if (confirm("Log out of the Marbie Jewels Royal Management Suite?")) {
+              if (confirm("Log out of the Marbie Jewels Management Suite?")) {
                 try {
                   await fetch("/api/admin/login", { method: "DELETE" });
                   localStorage.removeItem("adminAuthenticated");

@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart, CartItem } from "@/components/CartContext";
+import { calculateEkartShippingRate } from "@/lib/ekart";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Script from "next/script";
 
 export default function CartPage() {
-  const { items, total, count, clearCart, updateQuantity, removeFromCart, moveToWishlist, updateCustomerLocation } = useCart();
+  const { items, total, count, clearCart, updateQuantity, removeFromCart, moveToWishlist, updateCustomerLocation, customerUser } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
   
@@ -41,7 +42,10 @@ export default function CartPage() {
   const isEligibleForDiscount = isFirstOrder && count >= 2;
   const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
   const voucherDiscountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
-  const finalTotal = Math.max(0, total - discountAmount - voucherDiscountAmount);
+  const totalWeightGrams = items.reduce((sum, item) => sum + ((item.quantity || 1) * 500), 0) || 500;
+  const ekartShipping = calculateEkartShippingRate(totalWeightGrams, addressInput, paymentMethod, total);
+  const shippingFee = items.length > 0 ? ekartShipping.fee : 0;
+  const finalTotal = Math.max(0, total - discountAmount - voucherDiscountAmount) + shippingFee;
 
   const handleApplyVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,13 +184,21 @@ export default function CartPage() {
             amount: finalTotal,
             status: "PROCESSING",
             paymentMethod: detailedPaymentMethod,
-            customerName: session?.user?.name || "Couture Client",
-            initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
+            customerName: customerUser?.name || session?.user?.name || "Couture Client",
+            initials: (customerUser?.name || session?.user?.name) ? (customerUser?.name || session?.user?.name)!.charAt(0).toUpperCase() : "C",
             date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
             items: items,
+            email: customerUser?.email || session?.user?.email || "",
+            phone: customerUser?.phone || (session?.user as any)?.phone || "",
+            userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
             shippingAddress: {
               address: addressInput,
-              fullName: session?.user?.name || "Customer"
+              fullName: customerUser?.name || session?.user?.name || "Customer",
+              email: customerUser?.email || session?.user?.email || "",
+              phone: customerUser?.phone || (session?.user as any)?.phone || "",
+              userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
+              shippingFee: shippingFee,
+              courier: ekartShipping.courier
             }
           }),
         });
@@ -265,13 +277,21 @@ export default function CartPage() {
                 amount: finalTotal,
                 status: "PROCESSING",
                 paymentMethod: detailedPaymentMethod,
-                customerName: session?.user?.name || "Couture Client",
-                initials: session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "C",
+                customerName: customerUser?.name || session?.user?.name || "Couture Client",
+                initials: (customerUser?.name || session?.user?.name) ? (customerUser?.name || session?.user?.name)!.charAt(0).toUpperCase() : "C",
                 date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
                 items: items,
+                email: customerUser?.email || session?.user?.email || "",
+                phone: customerUser?.phone || (session?.user as any)?.phone || "",
+                userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
                 shippingAddress: {
                   address: addressInput,
-                  fullName: session?.user?.name || "Customer"
+                  fullName: customerUser?.name || session?.user?.name || "Customer",
+                  email: customerUser?.email || session?.user?.email || "",
+                  phone: customerUser?.phone || (session?.user as any)?.phone || "",
+                  userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
+                  shippingFee: shippingFee,
+                  courier: ekartShipping.courier
                 }
               }),
             });
@@ -531,8 +551,8 @@ export default function CartPage() {
               </div>
             )}
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", color: "var(--color-on-surface-variant)" }}>
-              <span>Shipping</span>
-              <span>Free</span>
+              <span>Shipping ({ekartShipping.courier})</span>
+              <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>₹{shippingFee.toLocaleString()}</span>
             </div>
             
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-outline-variant)", fontWeight: 700, fontSize: "18px", color: "var(--color-primary)" }}>

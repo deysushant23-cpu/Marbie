@@ -119,7 +119,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logoutCustomer = () => {
     setCustomerUser(null);
-    try { localStorage.removeItem("marbie_customer_user"); } catch {}
+    setItems([]);
+    setWishlistItems([]);
+    try {
+      localStorage.removeItem("marbie_customer_user");
+      localStorage.removeItem("marbie_cart");
+      localStorage.removeItem("wishlist");
+      localStorage.removeItem("orderHistory");
+      localStorage.removeItem("marbie_first_order_discount_used");
+    } catch {}
   };
 
   const updateCustomerLocation = (location: string) => {

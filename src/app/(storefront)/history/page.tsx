@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { CartItem } from "@/components/CartContext";
+import { useCart, CartItem } from "@/components/CartContext";
+import { useSession } from "next-auth/react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { motion } from "framer-motion";
@@ -20,29 +21,47 @@ interface Order {
 
 export default function HistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const { customerUser } = useCart();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const localHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
     setOrders(localHistory);
 
-    fetch('/api/orders')
-      .then(res => res.json())
-      .then(serverOrders => {
-        if (Array.isArray(serverOrders)) {
-          const combined = [...localHistory];
-          serverOrders.forEach(so => {
-            if (!combined.some(c => c.id === so.id)) {
-              combined.push(so);
-            }
-          });
-          setOrders(combined);
-        }
-      })
-      .catch(err => console.error("Could not sync server orders:", err));
-  }, []);
+    const email = customerUser?.email || session?.user?.email || "";
+    const phone = customerUser?.phone || (session?.user as any)?.phone || "";
+    const name = customerUser?.name || session?.user?.name || "";
+    const userId = (session?.user as any)?.id || customerUser?.phone || customerUser?.email || session?.user?.email || "";
+
+    const params = new URLSearchParams();
+    if (email) params.append("email", email);
+    if (phone) params.append("phone", phone);
+    if (userId) params.append("userId", userId);
+    if (name) params.append("name", name);
+
+    if (params.toString()) {
+      fetch(`/api/orders?${params.toString()}`)
+        .then(res => res.json())
+        .then(serverOrders => {
+          if (Array.isArray(serverOrders)) {
+            const combined = [...localHistory];
+            serverOrders.forEach(so => {
+              if (!combined.some(c => c.id === so.id)) {
+                combined.push(so);
+              }
+            });
+            setOrders(combined);
+          }
+        })
+        .catch(err => console.error("Could not sync server orders:", err));
+    }
+  }, [customerUser, session]);
 
   const handleDownloadInvoice = async (order: any) => {
     const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
+    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 80);
+    const courierName = order.shippingAddress?.courier || "Ekart Logistics Elite";
+    const subtotal = Math.max(0, orderTotal - shippingFee);
     const rawPm = order.paymentMethod || "Secured Digital Payment";
     const isCOD = rawPm.toUpperCase().includes("COD") || rawPm.toLowerCase() === "cod";
     const isDelivered = (order.status || "").toUpperCase() === "DELIVERED";
@@ -122,11 +141,11 @@ export default function HistoryPage() {
     <div style="width: 40%;">
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Subtotal</span>
-        <span>₹${orderTotal.toLocaleString()}</span>
+        <span>₹${subtotal.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
-        <span>Courier / Shipping</span>
-        <span style="text-align: right; color: #2874f0; font-weight: 600;">FREE SHIPPING (₹0.00)</span>
+        <span>Courier / Shipping (${courierName})</span>
+        <span style="text-align: right; color: #0f172a; font-weight: 600;">₹${shippingFee.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>

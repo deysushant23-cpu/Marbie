@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { sendEmail } from '@/lib/mailer';
 
 // Global memory store for active OTP passcodes
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       expires: Date.now() + 5 * 60 * 1000,
     };
 
-    console.log(`🔐 [ROYAL VAULT SECURITY] Generated OTP for ${cleanEmail}: ${otp}`);
+    console.log(`🔐 [MARBIE VAULT SECURITY] Generated OTP for ${cleanEmail}: ${otp}`);
 
     const mailOptions = {
       from: `"Marbie Jewels Security Vault" <security@marbiejewels.com>`,
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       html: `
         <div style="font-family: 'Georgia', serif; max-width: 500px; margin: 0 auto; background-color: #00241b; color: #ffffff; padding: 40px; border-radius: 16px; border: 1px solid #fed65b; text-align: center;">
           <div style="width: 56px; height: 56px; line-height: 56px; border-radius: 50%; background-color: rgba(254, 214, 91, 0.2); color: #fed65b; font-size: 28px; margin: 0 auto 20px;">🛡️</div>
-          <h1 style="color: #fed65b; font-size: 24px; margin: 0 0 12px 0; letter-spacing: 0.05em;">ROYAL VAULT ACCESS</h1>
+          <h1 style="color: #fed65b; font-size: 24px; margin: 0 0 12px 0; letter-spacing: 0.05em;">MARBIE VAULT ACCESS</h1>
           <p style="color: #a0d1c0; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
             You have requested executive authorization to unlock the Marbie Jewels Management Suite. Enter the one-time passcode below:
           </p>
@@ -52,7 +52,13 @@ export async function POST(request: Request) {
       `,
     };
 
-    await sendEmail(mailOptions);
+    after(async () => {
+      try {
+        await sendEmail(mailOptions);
+      } catch (err) {
+        console.error("Background Admin OTP dispatch failed:", err);
+      }
+    });
 
     return NextResponse.json({
       success: true,

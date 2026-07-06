@@ -50,6 +50,9 @@ function TrackOrderContent() {
 
   const handleDownloadInvoice = async (order: any) => {
     const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
+    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 80);
+    const courierName = order.shippingAddress?.courier || "Ekart Logistics Elite";
+    const subtotal = Math.max(0, orderTotal - shippingFee);
     const rawPm = order.paymentMethod || "Secured Digital Payment";
     const isCOD = rawPm.toUpperCase().includes("COD") || rawPm.toLowerCase() === "cod";
     const isDelivered = (order.status || "").toUpperCase() === "DELIVERED";
@@ -129,11 +132,11 @@ function TrackOrderContent() {
     <div style="width: 40%;">
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Subtotal</span>
-        <span>₹${orderTotal.toLocaleString()}</span>
+        <span>₹${subtotal.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
-        <span>Courier / Shipping</span>
-        <span style="text-align: right; color: #2874f0; font-weight: 600;">FREE SHIPPING (₹0.00)</span>
+        <span>Courier / Shipping (${courierName})</span>
+        <span style="text-align: right; color: #0f172a; font-weight: 600;">₹${shippingFee.toLocaleString()}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>

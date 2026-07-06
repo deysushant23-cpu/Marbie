@@ -80,7 +80,7 @@ export default function WingmanChat() {
         {
           id: (Date.now() + 1).toString(),
           role: "bot",
-          content: "Oops! My royal connection was interrupted. Please try again or browse our collections via the menu."
+          content: "Oops! My connection was interrupted. Please try again or browse our collections via the menu."
         }
       ]);
     } finally {

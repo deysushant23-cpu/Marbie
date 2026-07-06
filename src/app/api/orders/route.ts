@@ -1,7 +1,21 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authCookie = request.cookies.get("admin_token")?.value;
+  const isAdmin = authCookie === "true" || request.headers.get("x-admin-secret") === process.env.ADMIN_SECRET;
+
+  const { searchParams } = new URL(request.url);
+  const email = searchParams.get("email")?.trim().toLowerCase();
+  const phone = searchParams.get("phone")?.trim();
+  const userId = searchParams.get("userId")?.trim();
+  const name = searchParams.get("name")?.trim().toLowerCase();
+
+  // If not admin and no user session identifier is provided, return empty array to protect privacy
+  if (!isAdmin && !email && !phone && !userId && !name) {
+    return Response.json([]);
+  }
+
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: 'desc' }
   });
@@ -12,8 +26,27 @@ export async function GET() {
     items: o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : undefined,
     shippingAddress: o.shippingAddress ? (typeof o.shippingAddress === 'string' ? JSON.parse(o.shippingAddress) : o.shippingAddress) : undefined
   }));
-  
-  return Response.json(formattedOrders);
+
+  if (isAdmin) {
+    return Response.json(formattedOrders);
+  }
+
+  // Filter orders by user session identity
+  const userOrders = formattedOrders.filter(o => {
+    const addr: any = o.shippingAddress || {};
+    const orderEmail = (addr.email || (o as any).email || "").toString().trim().toLowerCase();
+    const orderPhone = (addr.phone || (o as any).phone || "").toString().trim();
+    const orderUserId = (addr.userId || (o as any).userId || "").toString().trim();
+    const orderName = (o.customerName || addr.fullName || "").toString().trim().toLowerCase();
+
+    if (email && orderEmail && orderEmail === email) return true;
+    if (phone && orderPhone && orderPhone === phone) return true;
+    if (userId && orderUserId && orderUserId === userId) return true;
+    if (name && orderName && orderName === name && (email || phone || userId || (!orderEmail && !orderPhone))) return true;
+    return false;
+  });
+
+  return Response.json(userOrders);
 }
 
 export async function POST(request: NextRequest) {
@@ -37,6 +70,14 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Order not found" }, { status: 404 });
     }
 
+    const addr = typeof body.shippingAddress === 'object' && body.shippingAddress !== null ? body.shippingAddress : (typeof body.shippingAddress === 'string' ? JSON.parse(body.shippingAddress || "{}") : {});
+    const finalShippingAddress = {
+      ...addr,
+      email: body.email || addr.email || "",
+      phone: body.phone || addr.phone || "",
+      userId: body.userId || addr.userId || ""
+    };
+
     const newId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder = await prisma.order.create({
       data: {
@@ -49,7 +90,7 @@ export async function POST(request: NextRequest) {
         status: body.status || "PROCESSING",
         paymentMethod: body.paymentMethod || "Online",
         items: body.items || [],
-        shippingAddress: body.shippingAddress || {}
+        shippingAddress: finalShippingAddress
       }
     });
 

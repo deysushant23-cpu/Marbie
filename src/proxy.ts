@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Master Royal Passkey
+// Master Marbie Passkey
 const ADMIN_SECRET = process.env.ADMIN_PASSWORD || "marbieadmin123";
 
 export function proxy(request: NextRequest) {
@@ -18,7 +18,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check royal master authentication passkey cookie
+  // Check master authentication passkey cookie
   const authCookie = request.cookies.get("admin_token")?.value;
   const isAuthenticated = authCookie === "true";
 
@@ -43,13 +43,20 @@ export function proxy(request: NextRequest) {
       pathname.startsWith("/api/auth/verify-otp") ||
       pathname.startsWith("/api/customers/send-otp") ||
       pathname.startsWith("/api/customers/verify-otp") ||
-      pathname.startsWith("/api/auth/");
+      pathname.startsWith("/api/auth/") ||
+      pathname.startsWith("/api/shipping") ||
+      pathname.startsWith("/api/wingman") ||
+      pathname.startsWith("/api/vouchers/") ||
+      pathname.startsWith("/api/checkout/") ||
+      pathname.startsWith("/api/ekart/") ||
+      pathname.startsWith("/api/webhooks/") ||
+      pathname.startsWith("/api/custom-auth");
 
     if (isMutatingMethod && !isPublicMutatingEndpoint) {
       const authHeader = request.headers.get("x-admin-secret");
       if (!isAuthenticated && authHeader !== ADMIN_SECRET) {
         return NextResponse.json(
-          { error: "🛡️ 403 Forbidden: Royal Security Shield. Unauthorized backend manipulation blocked." },
+          { error: "🛡️ 403 Forbidden: Marbie Security Shield. Unauthorized backend manipulation blocked." },
           { status: 403 }
         );
       }

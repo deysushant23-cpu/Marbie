@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { sendEmail } from "@/lib/mailer";
@@ -92,7 +92,13 @@ export async function POST(req: Request) {
       });
 
       emailToSend = email;
-      await sendOtpEmail(emailToSend, generatedOtp);
+      after(async () => {
+        try {
+          await sendOtpEmail(emailToSend, generatedOtp);
+        } catch (err) {
+          console.error("Background Auth OTP dispatch failed:", err);
+        }
+      });
 
     } else {
       // Returning user — validate PIN
@@ -126,7 +132,13 @@ export async function POST(req: Request) {
       });
 
       emailToSend = existingUser.email;
-      await sendOtpEmail(emailToSend, generatedOtp);
+      after(async () => {
+        try {
+          await sendOtpEmail(emailToSend, generatedOtp);
+        } catch (err) {
+          console.error("Background Auth OTP dispatch failed:", err);
+        }
+      });
     }
 
     return NextResponse.json({

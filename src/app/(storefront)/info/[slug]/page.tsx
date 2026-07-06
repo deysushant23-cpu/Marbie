@@ -69,7 +69,7 @@ export default async function InfoPage({ params }: { params: Promise<{ slug: str
       content = [
         "At Marbie Jewels, we strive to deliver your favourite jewellery safely and on time.",
         "Order Processing\n\n• Orders are processed within 1–3 business days after payment confirmation.\n• Orders placed on Sundays or public holidays will be processed on the next working day.",
-        "Shipping Charges\n\n• ₹79 shipping charge is applicable on orders below ₹599.\n• FREE Shipping on all orders of ₹599 and above.",
+        "Shipping Charges\n\n• Shipping charges are calculated dynamically at checkout according to Ekart Logistics slab pricing based on destination pincode, weight, and delivery zone.\n• Applicable courier and COD handling fees are displayed clearly before order confirmation.",
         "Shipping Time\n\n• Standard delivery across India usually takes 3–7 business days, depending on your location.\n• Delivery timelines may vary due to festivals, public holidays, weather conditions, or courier delays.",
         "Order Tracking\n\n• Once your order is shipped, you will receive a tracking ID via WhatsApp, SMS, or Email.\n• You can track your order using the tracking details provided.",
         "Delivery\n\n• Please ensure your shipping address and contact details are accurate.\n• Marbie Jewels is not responsible for delays or failed deliveries caused by incorrect or incomplete address information.",
