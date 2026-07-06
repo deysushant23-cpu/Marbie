@@ -67,8 +67,11 @@ export async function getTransporter() {
 export async function sendEmail(options: nodemailer.SendMailOptions) {
   const transporter = await getTransporter();
   
-  if (!options.from) {
-    const smtpUser = transporter.__smtpUser;
+  const smtpUser = transporter.__smtpUser;
+  if (smtpUser && transporter.__isRealConfig) {
+    // Override 'from' with the actual authenticated SMTP address to guarantee DKIM/SPF alignment and prevent Spam landing
+    options.from = `"Marbie Jewels" <${smtpUser}>`;
+  } else if (!options.from) {
     options.from = `"Marbie Jewels" <${smtpUser || "hello@marbiejewels.com"}>`;
   }
   
