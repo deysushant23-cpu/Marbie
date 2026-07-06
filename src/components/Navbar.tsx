@@ -17,7 +17,7 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const { count, setShowAuthModal } = useCart();
+  const { count, setShowAuthModal, logoutCustomer } = useCart();
   const { data: session } = useSession();
 
   const [config, setConfig] = useState<any>(null);
@@ -276,7 +276,7 @@ export default function Navbar() {
                       </Link>
                       
                       <button 
-                        onClick={() => { setIsProfileMenuOpen(false); signOut({ callbackUrl: "/" }); }} 
+                        onClick={() => { setIsProfileMenuOpen(false); logoutCustomer(); signOut({ callbackUrl: "/" }); }} 
                         style={{ display: "flex", alignItems: "center", gap: "8px", border: "none", background: "none", color: "#ba1a1a", fontSize: "14px", padding: "12px 0 0 0", cursor: "pointer", borderTop: "1px solid var(--color-outline-variant)", width: "100%", textAlign: "left", fontWeight: 500 }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>logout</span>
@@ -366,7 +366,7 @@ export default function Navbar() {
                     <span className="material-symbols-outlined">dashboard</span>
                     My Account Dashboard
                   </Link>
-                  <button style={{ color: "#ba1a1a", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, fontSize: "14px" }} onClick={() => { setIsMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}>
+                  <button style={{ color: "#ba1a1a", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, fontSize: "14px" }} onClick={() => { setIsMobileMenuOpen(false); logoutCustomer(); signOut({ callbackUrl: "/" }); }}>
                     <span className="material-symbols-outlined">logout</span>
                     Sign Out
                   </button>

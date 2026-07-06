@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 
 export default function CustomerLoginPage() {
-  const { setShowAuthModal } = useCart();
+  const { setShowAuthModal, logoutCustomer } = useCart();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -88,7 +88,7 @@ export default function CustomerLoginPage() {
             
             <div style={{ zIndex: 1 }}>
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => { logoutCustomer(); signOut({ callbackUrl: "/" }); }}
                 style={{ 
                   padding: "14px 28px", 
                   borderRadius: "12px", 
