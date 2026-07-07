@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       weightGrams = calculateCombinedWeight(items);
     } else if (weight !== undefined && weight !== null && weight !== "") {
       if (typeof weight === "number" && !isNaN(weight) && weight > 0) {
-        weightGrams = weight <= 5 ? weight * 1000 : weight; // If <= 5, assume kg
+        weightGrams = (weight < 1 || (weight <= 5 && weight % 1 !== 0)) ? weight * 1000 : weight;
       } else if (typeof weight === "string") {
         const str = weight.toLowerCase().trim();
         const num = parseFloat(str.replace(/[^0-9.]/g, ""));

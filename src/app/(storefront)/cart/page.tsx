@@ -550,9 +550,14 @@ export default function CartPage() {
                 <span>- ₹{voucherDiscountAmount.toLocaleString()}</span>
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px", color: "var(--color-on-surface-variant)" }}>
-              <span>Shipping ({ekartShipping.courier})</span>
-              <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>₹{shippingFee.toLocaleString()}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", color: "var(--color-on-surface-variant)" }}>
+              <div>
+                <span style={{ display: "block", color: "var(--color-on-surface)" }}>Shipping ({ekartShipping.courier})</span>
+                <span style={{ fontSize: "12px", color: "var(--color-on-surface-variant)" }}>
+                  Package Weight: ~{totalWeightGrams}g ({totalWeightGrams <= 500 ? "0–500g Slab" : totalWeightGrams <= 1000 ? "500g–1kg Slab" : "1kg–2kg Slab"} • Flat Rate)
+                </span>
+              </div>
+              <span style={{ fontWeight: 600, color: "var(--color-primary)", fontSize: "15px" }}>₹{shippingFee.toLocaleString()}</span>
             </div>
             
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-outline-variant)", fontWeight: 700, fontSize: "18px", color: "var(--color-primary)" }}>

@@ -319,7 +319,8 @@ export function calculateCombinedWeight(items: any[] = []): number {
     
     if (item.weight !== undefined && item.weight !== null && item.weight !== "") {
       if (typeof item.weight === "number" && !isNaN(item.weight) && item.weight > 0) {
-        w = item.weight <= 5 ? item.weight * 1000 : item.weight; // If <= 5, assume kg
+        // If weight is less than 1 (e.g. 0.5) or decimal < 5 (e.g. 1.5), treat as kg; otherwise treat integer numbers as grams
+        w = (item.weight < 1 || (item.weight <= 5 && item.weight % 1 !== 0)) ? item.weight * 1000 : item.weight;
       } else if (typeof item.weight === "string") {
         const str = item.weight.toLowerCase().trim();
         const num = parseFloat(str.replace(/[^0-9.]/g, ""));
