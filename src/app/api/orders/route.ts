@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         if (body.status === "CANCELLED" || body.status === "Cancelled") {
           const currentStatus = (existing.status || "").toUpperCase();
           if (["SHIPPED", "DELIVERED", "DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(currentStatus)) {
-            return Response.json({ error: "Order cannot be cancelled after parcel has been dispatched." }, { status: 400 });
+            return Response.json({ success: false, error: "Order cannot be cancelled after parcel has been dispatched.", message: "Order cannot be cancelled after parcel has been dispatched." }, { status: 200 });
           }
         }
         const updated = await prisma.order.update({
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         });
         return Response.json(updated);
       }
-      return Response.json({ error: "Order not found" }, { status: 404 });
+      return Response.json({ success: false, error: "Order not found", message: "Order not found" }, { status: 200 });
     }
 
     const addr = typeof body.shippingAddress === 'object' && body.shippingAddress !== null ? body.shippingAddress : (typeof body.shippingAddress === 'string' ? JSON.parse(body.shippingAddress || "{}") : {});

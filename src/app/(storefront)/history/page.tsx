@@ -200,31 +200,30 @@ export default function HistoryPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: order.id, status: "CANCELLED" }),
       });
-      if (res.ok) {
-        const updated = await res.json();
-        setOrders(orders.map(o => o.id === order.id ? { ...o, status: "CANCELLED" } : o));
-      } else {
-        const err = await res.json();
-        alert(err.error || "Failed to cancel order.");
+      const data = await res.json();
+      if (!res.ok || data.error || data.success === false) {
+        alert(data.error || data.message || "Order cannot be cancelled after parcel has been dispatched.");
         return;
       }
-    } catch (e) {
-      console.error(e);
-    }
-    try {
-      const saved = localStorage.getItem("orderHistory");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const updatedHistory = parsed.map((o: any) => o.id === order.id ? { ...o, status: "CANCELLED" } : o);
-          localStorage.setItem("orderHistory", JSON.stringify(updatedHistory));
+      const updatedOrders = orders.map(o => o.id === order.id ? { ...o, status: "CANCELLED" } : o);
+      setOrders(updatedOrders);
+      try {
+        const saved = localStorage.getItem("orderHistory");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            const updatedHistory = parsed.map((o: any) => o.id === order.id ? { ...o, status: "CANCELLED" } : o);
+            localStorage.setItem("orderHistory", JSON.stringify(updatedHistory));
+          }
         }
+      } catch (e) {
+        console.error(e);
       }
-      setOrders(orders.map(o => o.id === order.id ? { ...o, status: "CANCELLED" } : o));
-    } catch (e) {
+      alert("Your order has been cancelled successfully.");
+    } catch (e: any) {
       console.error(e);
+      alert("Failed to cancel order: " + (e.message || "Network error"));
     }
-    alert("Your order has been cancelled successfully.");
   };
 
   return (
