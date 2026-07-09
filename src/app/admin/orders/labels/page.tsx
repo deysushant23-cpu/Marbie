@@ -182,7 +182,7 @@ export default function LabelsPage() {
                  const parts = addressString.split(",").map((s: string) => s.trim());
                  const cityStatePin = parts.length > 2 ? parts.slice(-3).join(", ") : parts.join(", ");
                  const addressLine1 = parts.length > 2 ? parts.slice(0, -3).join(", ") : "";
-                 const mobile = order.shippingAddress?.mobile || "N/A";
+                 const mobile = order.shippingAddress?.phone || order.phone || order.shippingAddress?.mobile || "N/A";
                  const isCOD = Boolean(order.paymentMethod && (order.paymentMethod.toUpperCase().includes('COD') || order.paymentMethod.toLowerCase() === 'cod'));
                  const paymentDisplay = isCOD ? 'COD' : (order.paymentMethod ? `PAID (${order.paymentMethod})` : 'PAID');
                  

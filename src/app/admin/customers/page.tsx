@@ -4,14 +4,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 interface CustomerRecord {
-  id: number;
+  id: number | string;
   name: string;
-  email: string;
+  email?: string;
+  phone?: string;
   joinDate: string;
   totalOrders: number;
   lifetimeSpend: number;
-  tier: "VIP EMERALD" | "GOLD TIER" | "COLLECTOR";
-  image: string;
+  tier: "VIP EMERALD" | "GOLD TIER" | "COLLECTOR" | string;
+  image?: string;
 }
 
 
@@ -159,7 +160,7 @@ export default function AdminCustomers() {
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h4 className="product-name" style={{ fontSize: "16px", margin: 0 }}>
-                    {customer.name}
+                    {customer.name || "Artisan Client"}
                   </h4>
                   <p
                     style={{
@@ -171,8 +172,13 @@ export default function AdminCustomers() {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {customer.email}
+                    {customer.email || "No email"}
                   </p>
+                  {customer.phone && (
+                    <p style={{ fontSize: "11px", color: "var(--color-primary)", fontWeight: 600, margin: "2px 0 0 0" }}>
+                      📞 {customer.phone}
+                    </p>
+                  )}
                 </div>
               </div>
               <div

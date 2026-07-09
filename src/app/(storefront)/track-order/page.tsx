@@ -50,9 +50,11 @@ function TrackOrderContent() {
 
   const handleDownloadInvoice = async (order: any) => {
     const orderTotal = order.total !== undefined ? order.total : order.amount || 0;
-    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : 65);
-    const courierName = order.shippingAddress?.courier || "Ekart Logistics Elite";
-    const subtotal = Math.max(0, orderTotal - shippingFee);
+    const shippingFee = order.shippingAddress?.shippingFee !== undefined ? order.shippingAddress.shippingFee : (order.shippingFee !== undefined ? order.shippingFee : (orderTotal > 1499 ? 0 : 65));
+    const discountAmount = order.discountAmount || order.shippingAddress?.discountAmount || 0;
+    const voucherCode = order.voucherCode || order.shippingAddress?.voucherCode || "";
+    const courierName = order.shippingAddress?.courier || (shippingFee === 0 ? "Ekart Logistics Elite (Free Express Shipping)" : "Ekart Logistics Elite");
+    const subtotal = order.subtotal || order.shippingAddress?.subtotal || Math.max(0, orderTotal - shippingFee + discountAmount);
     const rawPm = order.paymentMethod || "Secured Digital Payment";
     const isCOD = rawPm.toUpperCase().includes("COD") || rawPm.toLowerCase() === "cod";
     const isDelivered = (order.status || "").toUpperCase() === "DELIVERED";
@@ -134,9 +136,14 @@ function TrackOrderContent() {
         <span>Subtotal</span>
         <span>₹${subtotal.toLocaleString()}</span>
       </div>
+      ${discountAmount > 0 ? `
+      <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #1a56db; font-weight: 600;">
+        <span>Discount Off ${voucherCode ? `(${voucherCode})` : ''}</span>
+        <span>- ₹${discountAmount.toLocaleString()}</span>
+      </div>` : ''}
       <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #64748b;">
         <span>Courier / Shipping (${courierName})</span>
-        <span style="text-align: right; color: #0f172a; font-weight: 600;">₹${shippingFee.toLocaleString()}</span>
+        <span style="text-align: right; color: ${shippingFee === 0 ? '#063b2f' : '#0f172a'}; font-weight: 600;">${shippingFee === 0 ? 'FREE (₹0)' : `₹${shippingFee.toLocaleString()}`}</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; margin-top: 8px;">
         <span>Total Due</span>

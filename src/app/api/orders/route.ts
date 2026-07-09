@@ -22,11 +22,18 @@ export async function GET(request: NextRequest) {
   });
   
   // Format json items for frontend
-  const formattedOrders = orders.map(o => ({
-    ...o,
-    items: o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : undefined,
-    shippingAddress: o.shippingAddress ? (typeof o.shippingAddress === 'string' ? JSON.parse(o.shippingAddress) : o.shippingAddress) : undefined
-  }));
+  const formattedOrders = orders.map(o => {
+    const parsedAddr = o.shippingAddress ? (typeof o.shippingAddress === 'string' ? JSON.parse(o.shippingAddress) : o.shippingAddress) : undefined;
+    return {
+      ...o,
+      items: o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : undefined,
+      shippingAddress: parsedAddr,
+      subtotal: parsedAddr?.subtotal,
+      discountAmount: parsedAddr?.discountAmount || 0,
+      voucherCode: parsedAddr?.voucherCode || "",
+      shippingFee: parsedAddr?.shippingFee
+    };
+  });
 
   if (isAdmin) {
     return Response.json(formattedOrders);
@@ -79,14 +86,17 @@ export async function POST(request: NextRequest) {
 
     const addr = typeof body.shippingAddress === 'object' && body.shippingAddress !== null ? body.shippingAddress : (typeof body.shippingAddress === 'string' ? JSON.parse(body.shippingAddress || "{}") : {});
     const itemsList = Array.isArray(body.items) ? body.items : [];
-    const calculatedShipping = calculateEkartShippingRate(calculateCombinedWeight(itemsList), addr.zipCode || addr.pincode, body.paymentMethod || "Online", Number(body.amount) || 0);
+    const subtotalVal = Number(addr.subtotal) || Number(body.amount) || 0;
+    const calculatedShipping = calculateEkartShippingRate(calculateCombinedWeight(itemsList), addr.zipCode || addr.pincode, body.paymentMethod || "Online", subtotalVal);
     const finalShippingAddress = {
       ...addr,
       email: body.email || addr.email || "",
       phone: body.phone || addr.phone || "",
       userId: body.userId || addr.userId || "",
       shippingFee: addr.shippingFee !== undefined ? addr.shippingFee : (body.shippingFee !== undefined ? body.shippingFee : calculatedShipping.fee),
-      courier: addr.courier || calculatedShipping.courier
+      courier: addr.courier || calculatedShipping.courier,
+      discountAmount: addr.discountAmount || 0,
+      voucherCode: addr.voucherCode || ""
     };
 
     const newId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;

@@ -4,7 +4,8 @@ import { calculateEkartShippingRate, calculateCombinedWeight } from "@/lib/ekart
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { deliveryPincode, weight, paymentMethod, orderAmount, items } = body;
+    const { deliveryPincode, weight, paymentMethod, orderAmount, total, amount, items } = body;
+    const orderVal = Number(orderAmount !== undefined ? orderAmount : (total !== undefined ? total : amount)) || 0;
 
     let weightGrams = 150;
     if (items && Array.isArray(items) && items.length > 0) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
       weightGrams,
       deliveryPincode,
       paymentMethod || "Online",
-      Number(orderAmount) || 0
+      orderVal
     );
 
     const targetDate = new Date();

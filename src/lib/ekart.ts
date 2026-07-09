@@ -294,7 +294,15 @@ export function calculateEkartShippingRate(weightGrams: number = 150, pincode?: 
 
   // Regulation states COD CHARGES: ₹0 (Free) and RTO CHARGES: ₹0 (Free)
   const codCharge = 0;
-  const totalFee = flatPrice + codCharge;
+  let totalFee = flatPrice + codCharge;
+  let courierName = "Ekart Logistics Elite";
+
+  if (Number(orderAmount) > 1499) {
+    totalFee = 0;
+    flatPrice = 0;
+    courierName = "Ekart Logistics Elite (Free Express Shipping)";
+  }
+
   const slabs = Math.max(1, Math.ceil(w / 500));
 
   return {
@@ -304,7 +312,7 @@ export function calculateEkartShippingRate(weightGrams: number = 150, pincode?: 
     slabs: slabs,
     zone: zone,
     days: days,
-    courier: "Ekart Logistics Elite"
+    courier: courierName
   };
 }
 

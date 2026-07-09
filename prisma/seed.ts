@@ -95,6 +95,34 @@ async function main() {
     });
   }
 
+  // Seed Vouchers
+  console.log('Seeding Promotional Vouchers...');
+  const defaultVouchers = [
+    { code: "MARBIE10", discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 0, maxDiscount: 2000, maxUsers: 2000 },
+    { code: "ROYAL20", discountType: "PERCENTAGE", discountValue: 20, minOrderAmount: 2000, maxDiscount: 5000, maxUsers: 1000 },
+    { code: "WELCOME10", discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 500, maxDiscount: 1500, maxUsers: 5000 },
+    { code: "SURAT500", discountType: "FIXED", discountValue: 500, minOrderAmount: 3000, maxDiscount: null, maxUsers: 1000 },
+    { code: "FESTIVE15", discountType: "PERCENTAGE", discountValue: 15, minOrderAmount: 1500, maxDiscount: 3000, maxUsers: 2000 },
+    { code: "FIRST10", discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 0, maxDiscount: 1000, maxUsers: 5000 },
+    { code: "FREESHIP", discountType: "FIXED", discountValue: 65, minOrderAmount: 499, maxDiscount: null, maxUsers: 5000 },
+  ];
+  for (const v of defaultVouchers) {
+    await prisma.voucher.upsert({
+      where: { code: v.code },
+      update: {},
+      create: {
+        code: v.code,
+        discountType: v.discountType,
+        discountValue: v.discountValue,
+        minOrderAmount: v.minOrderAmount,
+        maxDiscount: v.maxDiscount,
+        maxUsers: v.maxUsers,
+        usedCount: 0,
+        isActive: true,
+      }
+    });
+  }
+
   console.log('Seeding complete!');
 }
 

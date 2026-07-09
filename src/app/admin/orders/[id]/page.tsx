@@ -203,15 +203,32 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         {/* Customer Details */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <section className="card">
-            <h4 className="card-title" style={{ marginBottom: "24px" }}>Customer</h4>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+            <h4 className="card-title" style={{ marginBottom: "24px" }}>Customer Contact & Shipping</h4>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
               <div className={`buyer-avatar ${order.avatarClass || 'avatar-vk'}`} style={{ width: "48px", height: "48px", fontSize: "16px" }}>
                 {order.initials}
               </div>
               <div>
                 <p style={{ fontWeight: 600, color: "var(--color-primary)", marginBottom: "4px" }}>{order.customerName}</p>
-                <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)" }}>Total: ₹{order.amount.toLocaleString()}</p>
+                <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)" }}>Total Paid: ₹{order.amount?.toLocaleString()}</p>
               </div>
+            </div>
+
+            <div style={{ padding: "16px", backgroundColor: "var(--color-surface-container)", borderRadius: "6px", border: "1px solid var(--color-outline-variant)", marginBottom: "24px", fontSize: "13px" }}>
+              <div style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "var(--color-primary)" }}>phone_iphone</span>
+                <span><strong>Phone:</strong> {order.shippingAddress?.phone || order.phone || "Not provided"}</span>
+              </div>
+              <div style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "var(--color-primary)" }}>mail</span>
+                <span><strong>Email:</strong> {order.shippingAddress?.email || order.email || "Not provided"}</span>
+              </div>
+              {order.shippingAddress?.address && (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginTop: "8px", paddingTop: "8px", borderTop: "1px dashed var(--color-outline-variant)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "var(--color-primary)" }}>location_on</span>
+                  <span><strong>Address:</strong> {order.shippingAddress.address}</span>
+                </div>
+              )}
             </div>
             
             <h5 style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>Status Insights</h5>

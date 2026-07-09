@@ -25,7 +25,7 @@ export default function CartPage() {
 
   // Voucher State
   const [voucherInput, setVoucherInput] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number; message: string } | null>(null);
+  const [appliedVoucher, setAppliedVoucher] = useState<{ code: string; discountAmount: number; discountType?: string; discountValue?: number; minOrderAmount?: number; maxDiscount?: number | null; message: string } | null>(null);
   const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState<string | null>(null);
 
@@ -38,6 +38,36 @@ export default function CartPage() {
       }
     }
   }, []);
+
+  React.useEffect(() => {
+    if (appliedVoucher) {
+      if (total < (appliedVoucher.minOrderAmount || 0)) {
+        setVoucherError(`Cart total fell below ₹${(appliedVoucher.minOrderAmount || 0).toLocaleString()} minimum required for code ${appliedVoucher.code}. Voucher removed.`);
+        setAppliedVoucher(null);
+      } else if (appliedVoucher.discountType === "PERCENTAGE" && appliedVoucher.discountValue !== undefined) {
+        let newDisc = Math.round(total * (appliedVoucher.discountValue / 100));
+        if (appliedVoucher.maxDiscount && newDisc > appliedVoucher.maxDiscount) {
+          newDisc = appliedVoucher.maxDiscount;
+        }
+        if (newDisc !== appliedVoucher.discountAmount) {
+          setAppliedVoucher(prev => prev ? {
+            ...prev,
+            discountAmount: newDisc,
+            message: `Voucher applied! You save ₹${newDisc.toLocaleString()}!`
+          } : null);
+        }
+      } else if (appliedVoucher.discountType === "FIXED" && appliedVoucher.discountValue !== undefined) {
+        let newDisc = Math.min(appliedVoucher.discountValue, total);
+        if (newDisc !== appliedVoucher.discountAmount) {
+          setAppliedVoucher(prev => prev ? {
+            ...prev,
+            discountAmount: newDisc,
+            message: `Voucher applied! You save ₹${newDisc.toLocaleString()}!`
+          } : null);
+        }
+      }
+    }
+  }, [total, appliedVoucher?.code, appliedVoucher?.discountType, appliedVoucher?.discountValue, appliedVoucher?.minOrderAmount, appliedVoucher?.maxDiscount]);
 
   const isEligibleForDiscount = isFirstOrder && count >= 2;
   const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
@@ -65,6 +95,10 @@ export default function CartPage() {
       setAppliedVoucher({
         code: data.code,
         discountAmount: data.discountAmount,
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+        minOrderAmount: data.minOrderAmount || 0,
+        maxDiscount: data.maxDiscount || null,
         message: data.message,
       });
       setVoucherInput("");
@@ -198,7 +232,10 @@ export default function CartPage() {
               phone: customerUser?.phone || (session?.user as any)?.phone || "",
               userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
               shippingFee: shippingFee,
-              courier: ekartShipping.courier
+              courier: ekartShipping.courier,
+              discountAmount: discountAmount + voucherDiscountAmount,
+              voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+              subtotal: total
             }
           }),
         });
@@ -209,9 +246,25 @@ export default function CartPage() {
           id: newOrderResponse.id || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
           total: finalTotal,
+          subtotal: total,
+          discountAmount: discountAmount + voucherDiscountAmount,
+          voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+          shippingFee: shippingFee,
           items: [...items],
           status: "PROCESSING",
-          paymentMethod: detailedPaymentMethod
+          paymentMethod: detailedPaymentMethod,
+          shippingAddress: {
+            address: addressInput,
+            fullName: customerUser?.name || session?.user?.name || "Customer",
+            email: customerUser?.email || session?.user?.email || "",
+            phone: customerUser?.phone || (session?.user as any)?.phone || "",
+            userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
+            shippingFee: shippingFee,
+            courier: ekartShipping.courier,
+            discountAmount: discountAmount + voucherDiscountAmount,
+            voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+            subtotal: total
+          }
         };
         
         const existingHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
@@ -291,7 +344,10 @@ export default function CartPage() {
                   phone: customerUser?.phone || (session?.user as any)?.phone || "",
                   userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
                   shippingFee: shippingFee,
-                  courier: ekartShipping.courier
+                  courier: ekartShipping.courier,
+                  discountAmount: discountAmount + voucherDiscountAmount,
+                  voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+                  subtotal: total
                 }
               }),
             });
@@ -302,10 +358,26 @@ export default function CartPage() {
               id: newOrderResponse.id || `#ORD-${Math.floor(1000 + Math.random() * 9000)}`,
               date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
               total: finalTotal,
+              subtotal: total,
+              discountAmount: discountAmount + voucherDiscountAmount,
+              voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+              shippingFee: shippingFee,
               items: [...items],
               status: "PROCESSING",
               paymentMethod: detailedPaymentMethod,
-              paymentId: response.razorpay_payment_id
+              paymentId: response.razorpay_payment_id,
+              shippingAddress: {
+                address: addressInput,
+                fullName: customerUser?.name || session?.user?.name || "Customer",
+                email: customerUser?.email || session?.user?.email || "",
+                phone: customerUser?.phone || (session?.user as any)?.phone || "",
+                userId: customerUser?.phone || customerUser?.email || (session?.user as any)?.id || session?.user?.email || "anonymous",
+                shippingFee: shippingFee,
+                courier: ekartShipping.courier,
+                discountAmount: discountAmount + voucherDiscountAmount,
+                voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+                subtotal: total
+              }
             };
             
             const existingHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
@@ -490,7 +562,27 @@ export default function CartPage() {
             </div>
 
             <div style={{ backgroundColor: "var(--color-surface)", padding: "32px", border: "1px solid var(--color-outline-variant)" }}>
-              <h2 style={{ fontSize: "18px", color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "24px" }}>Order Summary</h2>
+              <h2 style={{ fontSize: "18px", color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "20px" }}>Order Summary</h2>
+
+              {/* Free Shipping Banner */}
+              {items.length > 0 && total <= 1499 && (
+                <div style={{ backgroundColor: "rgba(212, 175, 55, 0.12)", border: "1px dashed #d4af37", padding: "12px 14px", borderRadius: "8px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "var(--color-primary)" }}>
+                  <span className="material-symbols-outlined" style={{ color: "#d4af37", fontSize: "22px", flexShrink: 0 }}>local_shipping</span>
+                  <div>
+                    <strong style={{ display: "block", color: "#d4af37", textTransform: "uppercase", fontSize: "11px", letterSpacing: "0.05em" }}>Express Free Shipping Goal</strong>
+                    <span>Add <strong>₹{(1500 - total).toLocaleString()}</strong> more to your bag to unlock <strong>FREE Express Shipping</strong>!</span>
+                  </div>
+                </div>
+              )}
+              {items.length > 0 && total > 1499 && (
+                <div style={{ backgroundColor: "rgba(6, 59, 47, 0.08)", border: "1px solid #063b2f", padding: "12px 14px", borderRadius: "8px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#063b2f", fontWeight: 600 }}>
+                  <span className="material-symbols-outlined" style={{ color: "#d4af37", fontSize: "22px", flexShrink: 0 }}>verified</span>
+                  <div>
+                    <strong style={{ display: "block", color: "#063b2f", textTransform: "uppercase", fontSize: "11px", letterSpacing: "0.05em" }}>🎉 Free Shipping Unlocked!</strong>
+                    <span>Your order qualifies for <strong>FREE Express Shipping via Ekart Logistics Elite</strong>!</span>
+                  </div>
+                </div>
+              )}
 
               {/* Voucher Code Input */}
               <div style={{ marginBottom: "24px", paddingBottom: "24px", borderBottom: "1px dashed var(--color-outline-variant)" }}>
@@ -554,10 +646,12 @@ export default function CartPage() {
               <div>
                 <span style={{ display: "block", color: "var(--color-on-surface)" }}>Shipping ({ekartShipping.courier})</span>
                 <span style={{ fontSize: "12px", color: "var(--color-on-surface-variant)" }}>
-                  Package Weight: ~{totalWeightGrams}g ({totalWeightGrams <= 500 ? "0–500g Slab" : totalWeightGrams <= 1000 ? "500g–1kg Slab" : "1kg–2kg Slab"} • Flat Rate)
+                  Package Weight: ~{totalWeightGrams}g ({totalWeightGrams <= 500 ? "0–500g Slab" : totalWeightGrams <= 1000 ? "500g–1kg Slab" : "1kg–2kg Slab"} • {shippingFee === 0 || total > 1499 ? "FREE Express" : "Flat Rate"})
                 </span>
               </div>
-              <span style={{ fontWeight: 600, color: "var(--color-primary)", fontSize: "15px" }}>₹{shippingFee.toLocaleString()}</span>
+              <span style={{ fontWeight: 600, color: shippingFee === 0 || total > 1499 ? "#063b2f" : "var(--color-primary)", fontSize: "15px" }}>
+                {shippingFee === 0 || total > 1499 ? "FREE (Orders > ₹1,499)" : `₹${shippingFee.toLocaleString()}`}
+              </span>
             </div>
             
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-outline-variant)", fontWeight: 700, fontSize: "18px", color: "var(--color-primary)" }}>

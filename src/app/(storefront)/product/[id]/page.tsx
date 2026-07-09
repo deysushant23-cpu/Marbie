@@ -91,7 +91,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       const res = await fetch("/api/shipping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deliveryPincode: pincode, weight: 0.5 })
+        body: JSON.stringify({ deliveryPincode: pincode, weight: 0.5, orderAmount: product ? product.price : 0 })
       });
       const data = await res.json();
       setShippingResult(data);
@@ -426,7 +426,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "12px", backgroundColor: shippingResult.serviceable ? "rgba(46, 125, 50, 0.1)" : "rgba(211, 47, 47, 0.1)", borderRadius: "4px" }}>
                 {shippingResult.serviceable ? (
                   <div>
-                    <p style={{ color: "#2e7d32", margin: "0 0 4px 0", fontWeight: 600, fontSize: "14px" }}>✓ Delivery Available</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <p style={{ color: "#2e7d32", margin: 0, fontWeight: 600, fontSize: "14px" }}>✓ Delivery Available</p>
+                      <span style={{ fontSize: "12px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px", backgroundColor: shippingResult.shippingFee === 0 ? "rgba(6, 59, 47, 0.15)" : "rgba(0,0,0,0.05)", color: shippingResult.shippingFee === 0 ? "#063b2f" : "#4a5550" }}>
+                        {shippingResult.shippingFee === 0 ? "🎉 FREE Express Shipping (> ₹1,499)" : `Shipping: ₹${shippingResult.shippingFee}`}
+                      </span>
+                    </div>
                     <p style={{ color: "var(--color-on-surface-variant)", margin: 0, fontSize: "13px" }}>
                       Expected Delivery by <strong style={{ color: "var(--color-primary)" }}>{new Date(shippingResult.estimatedDeliveryDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</strong> 
                       &nbsp;({shippingResult.days} days) via {shippingResult.courier}
