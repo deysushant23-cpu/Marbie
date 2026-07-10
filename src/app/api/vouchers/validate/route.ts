@@ -17,11 +17,10 @@ export async function POST(request: NextRequest) {
       console.warn("Prisma lookup failed, falling back to built-in vouchers:", e);
     }
 
-    // Built-in fallback promotional vouchers so offers and discounts always work
     const DEFAULT_VOUCHERS: Record<string, { discountType: string; discountValue: number; minOrderAmount: number; maxDiscount: number | null; maxUsers: number }> = {
       MARBIE10: { discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 0, maxDiscount: 2000, maxUsers: 2000 },
       ROYAL20: { discountType: "PERCENTAGE", discountValue: 20, minOrderAmount: 2000, maxDiscount: 5000, maxUsers: 1000 },
-      WELCOME10: { discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 500, maxDiscount: 1500, maxUsers: 5000 },
+      WELCOME10: { discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 0, maxDiscount: 1500, maxUsers: 5000 },
       SURAT500: { discountType: "FIXED", discountValue: 500, minOrderAmount: 3000, maxDiscount: null, maxUsers: 1000 },
       FESTIVE15: { discountType: "PERCENTAGE", discountValue: 15, minOrderAmount: 1500, maxDiscount: 3000, maxUsers: 2000 },
       FIRST10: { discountType: "PERCENTAGE", discountValue: 10, minOrderAmount: 0, maxDiscount: 1000, maxUsers: 5000 },

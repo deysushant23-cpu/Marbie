@@ -69,7 +69,7 @@ export default function CartPage() {
     }
   }, [total, appliedVoucher?.code, appliedVoucher?.discountType, appliedVoucher?.discountValue, appliedVoucher?.minOrderAmount, appliedVoucher?.maxDiscount]);
 
-  const isEligibleForDiscount = isFirstOrder && count >= 2;
+  const isEligibleForDiscount = isFirstOrder && count >= 1;
   const discountAmount = isEligibleForDiscount ? Math.round(total * 0.10) : 0;
   const voucherDiscountAmount = appliedVoucher ? appliedVoucher.discountAmount : 0;
   const totalWeightGrams = calculateCombinedWeight(items);
@@ -234,7 +234,7 @@ export default function CartPage() {
               shippingFee: shippingFee,
               courier: ekartShipping.courier,
               discountAmount: discountAmount + voucherDiscountAmount,
-              voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+              voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
               subtotal: total
             }
           }),
@@ -248,7 +248,7 @@ export default function CartPage() {
           total: finalTotal,
           subtotal: total,
           discountAmount: discountAmount + voucherDiscountAmount,
-          voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+          voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
           shippingFee: shippingFee,
           items: [...items],
           status: "PROCESSING",
@@ -262,7 +262,7 @@ export default function CartPage() {
             shippingFee: shippingFee,
             courier: ekartShipping.courier,
             discountAmount: discountAmount + voucherDiscountAmount,
-            voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+            voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
             subtotal: total
           }
         };
@@ -346,7 +346,7 @@ export default function CartPage() {
                   shippingFee: shippingFee,
                   courier: ekartShipping.courier,
                   discountAmount: discountAmount + voucherDiscountAmount,
-                  voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+                  voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
                   subtotal: total
                 }
               }),
@@ -360,7 +360,7 @@ export default function CartPage() {
               total: finalTotal,
               subtotal: total,
               discountAmount: discountAmount + voucherDiscountAmount,
-              voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+              voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
               shippingFee: shippingFee,
               items: [...items],
               status: "PROCESSING",
@@ -375,7 +375,7 @@ export default function CartPage() {
                 shippingFee: shippingFee,
                 courier: ekartShipping.courier,
                 discountAmount: discountAmount + voucherDiscountAmount,
-                voucherCode: appliedVoucher ? appliedVoucher.code : (isEligibleForDiscount ? "WELCOME-FIRST10" : undefined),
+                voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
                 subtotal: total
               }
             };
@@ -448,25 +448,15 @@ export default function CartPage() {
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "48px", alignItems: "start" }}>
-          {isFirstOrder && (
+          {isFirstOrder && count > 0 && (
             <div style={{ gridColumn: "1 / -1", marginBottom: "-16px" }}>
-              {count < 2 ? (
-                <div style={{ backgroundColor: "var(--color-surface)", color: "var(--color-primary)", padding: "16px 24px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "16px", border: "1px solid var(--color-secondary)", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "var(--color-secondary)", flexShrink: 0 }}>card_giftcard</span>
-                  <div>
-                    <strong style={{ display: "block", fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-primary)", marginBottom: "4px" }}>🎁 Welcome Offer: Unlock 10% Off!</strong>
-                    <span style={{ fontSize: "14px", color: "var(--color-on-surface-variant)" }}>You are shopping as a new customer! Add <strong>{2 - count} more item{2 - count > 1 ? "s" : ""}</strong> to your bag to instantly receive a <strong>10% First-Order Discount</strong> on your entire purchase!</span>
-                  </div>
+              <div style={{ backgroundColor: "#063b2f", color: "#ffffff", padding: "16px 24px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "16px", border: "2px solid #d4af37", boxShadow: "0 6px 20px rgba(6,59,47,0.2)" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#d4af37", flexShrink: 0 }}>verified</span>
+                <div>
+                  <strong style={{ display: "block", fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#d4af37", marginBottom: "4px" }}>🎉 10% First-Order Discount Unlocked!</strong>
+                  <span style={{ fontSize: "14px", color: "#ffffff", opacity: 0.95 }}>Congratulations! As a new customer, you are saving <strong>₹{discountAmount.toLocaleString()} (10% OFF)</strong> on your first luxury purchase!</span>
                 </div>
-              ) : (
-                <div style={{ backgroundColor: "#063b2f", color: "#ffffff", padding: "16px 24px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "16px", border: "2px solid #d4af37", boxShadow: "0 6px 20px rgba(6,59,47,0.2)" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#d4af37", flexShrink: 0 }}>verified</span>
-                  <div>
-                    <strong style={{ display: "block", fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#d4af37", marginBottom: "4px" }}>🎉 10% First-Order Discount Unlocked!</strong>
-                    <span style={{ fontSize: "14px", color: "#ffffff", opacity: 0.95 }}>Congratulations! You have 2+ items in your bag as a new customer. You are saving <strong>₹{discountAmount.toLocaleString()} (10% OFF)</strong> on your first luxury purchase!</span>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           )}
           <div className="cart-items">

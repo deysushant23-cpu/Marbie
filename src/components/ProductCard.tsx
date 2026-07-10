@@ -71,7 +71,7 @@ export default function ProductCard({ product }: { product: ProductProps }) {
       whileHover="hover"
       onClick={() => router.push(`/product/${product.id}`)}
       className="product-card hover-lift" 
-      style={{ position: "relative", cursor: "pointer" }}
+      style={{ position: "relative", cursor: "pointer", display: "flex", flexDirection: "column", height: "100%", width: "100%" }}
       variants={{
         hover: { y: -6, scale: 1.02, transition: { duration: 0.3, ease: "easeOut" } }
       }}
@@ -89,7 +89,7 @@ export default function ProductCard({ product }: { product: ProductProps }) {
         )}
 
         {product.image && isVideo(product.image) ? (
-          <video autoPlay loop muted playsInline className="product-img" src={product.image} />
+          <video autoPlay loop muted playsInline className="product-img" src={product.image} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <>
             <motion.div 
@@ -108,7 +108,7 @@ export default function ProductCard({ product }: { product: ProductProps }) {
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 2 }}
               >
                 {isVideo(secondImage) ? (
-                  <video autoPlay loop muted playsInline className="product-img" src={secondImage} style={{ objectFit: "cover" }} />
+                  <video autoPlay loop muted playsInline className="product-img" src={secondImage} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
                   <Image alt={`${product.name} alternate view`} src={secondImage} className="product-img" fill style={{ objectFit: "cover" }} quality={90} />
                 )}
@@ -168,7 +168,7 @@ export default function ProductCard({ product }: { product: ProductProps }) {
         </motion.div>
       </div>
 
-      <div style={{ marginTop: "12px" }}>
+      <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", flex: 1 }}>
         <p className="product-desc" style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "0.15em", color: "var(--color-on-surface-variant)", textTransform: "uppercase", margin: "0 0 4px 0" }}>
           {(product as any).subcategory || product.category}
         </p>
@@ -189,7 +189,7 @@ export default function ProductCard({ product }: { product: ProductProps }) {
           </div>
         )}
 
-        <div className="price-line-wrap">
+        <div className="price-line-wrap" style={{ marginTop: "auto", paddingTop: "8px" }}>
           {hasDiscount && <span className="price-original">₹{origPrice.toLocaleString()}</span>}
           <span className="price-current">₹{product.price.toLocaleString()}</span>
         </div>

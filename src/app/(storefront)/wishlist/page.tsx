@@ -40,7 +40,7 @@ export default function WishlistPage() {
                 exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.25 } }}
                 whileHover={{ y: -6 }}
                 className="product-card hover-lift" 
-                style={{ position: "relative" }}
+                style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%", width: "100%" }}
               >
                 <Link 
                   href={`/product/${item.id}`} 
@@ -78,9 +78,9 @@ export default function WishlistPage() {
                     MOVE TO BAG
                   </button>
                 </div>
-                <div className="product-info" style={{ position: "relative", zIndex: 2, pointerEvents: "none" }}>
-                  <h3 className="product-name">{item.name}</h3>
-                  <p className="product-price">₹{item.price.toLocaleString()}</p>
+                <div className="product-info" style={{ position: "relative", zIndex: 2, pointerEvents: "none", display: "flex", flexDirection: "column", flex: 1, marginTop: "12px" }}>
+                  <h3 className="product-name" style={{ margin: "0 0 8px 0" }}>{item.name}</h3>
+                  <p className="product-price" style={{ marginTop: "auto", paddingTop: "6px" }}>₹{item.price.toLocaleString()}</p>
                 </div>
               </motion.div>
             ))}

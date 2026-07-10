@@ -677,6 +677,7 @@ function CollectionContent({ slug }: { slug: string }) {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.4 }}
+                      style={{ display: "flex", flexDirection: "column", height: "100%" }}
                     >
                       <ProductCard product={product} />
                     </motion.div>
