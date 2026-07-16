@@ -75,12 +75,43 @@ export default function ReviewPromptPopup({
           console.error("Error looking up order in localHistory for review prompt", e);
         }
       }
+    } else if (typeof window !== "undefined") {
+      try {
+        const savedHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+        const unreviewedDelivered = savedHistory.find((o: any) => {
+          const status = (o.status || "").toUpperCase();
+          if (status !== "DELIVERED" || !o.items || o.items.length === 0) return false;
+          const item = o.items[0];
+          const isReviewed = localStorage.getItem(`reviewed_order_${o.id}_${item.name}`) === "true";
+          const isDismissed = sessionStorage.getItem(`dismissed_review_prompt_${o.id}`) === "true";
+          return !isReviewed && !isDismissed;
+        });
+
+        if (unreviewedDelivered && unreviewedDelivered.items?.[0]) {
+          const item = unreviewedDelivered.items[0];
+          const timer = setTimeout(() => {
+            setActiveOrderId(unreviewedDelivered.id);
+            setActiveProductName(item.name);
+            setActiveProductImage(item.image);
+            if (unreviewedDelivered.shippingAddress?.fullName) {
+              setAuthor(unreviewedDelivered.shippingAddress.fullName);
+            }
+            setIsOpen(true);
+          }, 1200);
+          return () => clearTimeout(timer);
+        }
+      } catch (e) {
+        console.error("Error auto-checking unreviewed DELIVERED orders", e);
+      }
     }
   }, [propIsOpen, propOrderId, propProductName, propProductImage, searchParams]);
 
   const handleClose = () => {
     setIsOpen(false);
     if (propOnClose) propOnClose();
+    if (activeOrderId && typeof window !== "undefined") {
+      sessionStorage.setItem(`dismissed_review_prompt_${activeOrderId}`, "true");
+    }
 
     // If opened via URL query parameter, clean up URL without reloading page
     if (searchParams.get("reviewPrompt") === "true") {

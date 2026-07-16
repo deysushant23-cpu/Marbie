@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import MaintenanceScreen from "@/components/MaintenanceScreen";
 import { AuthProvider } from "@/components/AuthProvider";
 import WingmanChat from "@/components/WingmanChat";
+import ReviewPromptPopup from "@/components/ReviewPromptPopup";
 
 export default async function StorefrontLayout({
   children,
@@ -33,6 +34,7 @@ export default async function StorefrontLayout({
       )}
       <div style={{ paddingTop: isMaintenanceMode ? "112px" : "80px" }}>{children}</div>
       <WingmanChat />
+      <ReviewPromptPopup />
       <Footer />
     </AuthProvider>
   );

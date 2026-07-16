@@ -5,7 +5,6 @@ import { notFound, useRouter } from "next/navigation";
 import { useCart } from "@/components/CartContext";
 import { isVideo } from "@/lib/media";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
-import ReviewPromptPopup from "@/components/ReviewPromptPopup";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -15,7 +14,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState<any>(null);
-  const [manualReviewOpen, setManualReviewOpen] = useState(false);
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
@@ -527,27 +525,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Product Reviews Section with Write Review Button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "48px", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
-        <h3 style={{ fontSize: "20px", color: "var(--color-primary)", fontFamily: "var(--font-serif)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>Royal Customer Reviews</h3>
-        <button 
-          onClick={() => setManualReviewOpen(true)}
-          className="btn-primary hover-scale"
-          style={{ width: "auto", padding: "12px 24px", backgroundColor: "var(--color-secondary)", color: "#ffffff", border: "none", display: "flex", alignItems: "center", gap: "8px", borderRadius: "8px", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: "'FILL' 1" }}>star</span>
-          WRITE A ROYAL REVIEW
-        </button>
-      </div>
-
+      {/* Product Reviews Marquee Section Matching Reference */}
       <ReviewsCarousel filterProduct={product.name} />
-
-      <ReviewPromptPopup
-        isOpen={manualReviewOpen}
-        onClose={() => setManualReviewOpen(false)}
-        productName={product.name}
-        productImage={product.image || (product.images?.[0]) || ""}
-      />
     </div>
   );
 }
