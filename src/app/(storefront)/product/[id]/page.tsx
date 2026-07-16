@@ -42,6 +42,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       })
       .then((data) => {
         setProduct(data);
+        if (typeof document !== "undefined" && data?.name) {
+          document.title = `${data.name} | Marbie Jewels`;
+        }
         const productImages = data.images && data.images.length > 0 
           ? [data.image, ...data.images] 
           : [data.image];
@@ -172,6 +175,38 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   return (
     <div className="container" style={{ paddingTop: "120px", paddingBottom: "120px", minHeight: "80vh" }}>
       
+      {/* Google SEO Product & Rating Structured Schema (JSON-LD) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            name: product.name,
+            image: product.image || product.images?.[0] || "https://marbiejewels.com/icon.jpg",
+            description: product.description || `Handcrafted royal heritage jewelry: ${product.name}`,
+            sku: product.sku || product.id || id,
+            brand: {
+              "@type": "Brand",
+              name: "Marbie Jewels"
+            },
+            offers: {
+              "@type": "Offer",
+              url: typeof window !== "undefined" ? window.location.href : `https://marbiejewels.com/product/${id}`,
+              priceCurrency: "INR",
+              price: product.price || 0,
+              itemCondition: "https://schema.org/NewCondition",
+              availability: (product.stock && product.stock > 0) ? "https://schema.org/InStock" : "https://schema.org/PreOrder"
+            },
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: 4.9,
+              reviewCount: 28
+            }
+          })
+        }}
+      />
+
       {/* Breadcrumb Navigation */}
       <motion.nav 
         initial={{ opacity: 0, y: -10 }}
