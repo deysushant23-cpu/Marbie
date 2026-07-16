@@ -278,8 +278,11 @@ export default function ReviewPromptPopup({
               </span>
             </div>
             <h3 style={{ fontSize: "clamp(18px, 4vw, 22px)", fontFamily: "var(--font-serif, serif)", fontWeight: 600, margin: 0, letterSpacing: "-0.01em" }}>
-              How is your new masterpiece?
+              🎉 Your Royal Masterpiece Has Arrived!
             </h3>
+            <p style={{ fontSize: "13px", color: "#e2e8f0", margin: "6px 0 0 0", lineHeight: 1.4 }}>
+              We hope your doorstep delivery from Ekart Logistics brought joy and elegance to your day. How is your new {activeProductName ? `"${activeProductName}"` : "jewelry"} piece?
+            </p>
             {activeOrderId && (
               <p style={{ fontSize: "12px", color: "#94a3b8", margin: "4px 0 0 0" }}>Order #{activeOrderId.replace(/^#/, "")}</p>
             )}
@@ -527,6 +530,60 @@ export default function ReviewPromptPopup({
                     </>
                   )}
                 </motion.button>
+
+                {/* Skip / Cancel Options */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px", gap: "12px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activeOrderId && typeof window !== "undefined") {
+                        sessionStorage.setItem(`dismissed_review_prompt_${activeOrderId}`, "true");
+                      }
+                      handleClose();
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      background: "transparent",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: "8px",
+                      color: "var(--color-on-surface-variant, #64748b)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      textAlign: "center"
+                    }}
+                  >
+                    Maybe Later
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activeOrderId && activeProductName && typeof window !== "undefined") {
+                        localStorage.setItem(`reviewed_order_${activeOrderId}_${activeProductName}`, "true");
+                      }
+                      if (activeOrderId && typeof window !== "undefined") {
+                        sessionStorage.setItem(`dismissed_review_prompt_${activeOrderId}`, "true");
+                      }
+                      handleClose();
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      background: "rgba(239, 68, 68, 0.08)",
+                      border: "1px solid rgba(239, 68, 68, 0.2)",
+                      borderRadius: "8px",
+                      color: "var(--color-error, #ef4444)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      textAlign: "center"
+                    }}
+                  >
+                    No Thanks (Don&apos;t Ask Again)
+                  </button>
+                </div>
               </form>
             )}
           </div>
