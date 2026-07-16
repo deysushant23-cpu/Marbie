@@ -36,24 +36,30 @@ export default function ReviewsCarousel({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch("/api/reviews")
-      .then(res => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          if (filterProduct) {
-            const matched = data.filter(r => r.product && (
-              r.product.toLowerCase() === filterProduct.toLowerCase() ||
-              r.product.toLowerCase().includes(filterProduct.toLowerCase()) ||
-              filterProduct.toLowerCase().includes(r.product.toLowerCase())
-            )).filter(r => r.id > 1000); // Exclude seeded dummy reviews (IDs 101-105)
-            setReviews(matched);
-          } else {
-            const featured = data.filter(r => r.isFeatured);
-            setReviews(featured);
+    const loadReviews = () => {
+      fetch("/api/reviews")
+        .then(res => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            if (filterProduct) {
+              const matched = data.filter(r => r.product && (
+                r.product.toLowerCase() === filterProduct.toLowerCase() ||
+                r.product.toLowerCase().includes(filterProduct.toLowerCase()) ||
+                filterProduct.toLowerCase().includes(r.product.toLowerCase())
+              )).filter(r => ! [101, 102, 103, 104, 105].includes(r.id) || r.id > 1000 || r.verified);
+              setReviews(matched);
+            } else {
+              const featured = data.filter(r => r.isFeatured);
+              setReviews(featured);
+            }
           }
-        }
-      })
-      .catch(err => console.error("Error fetching reviews:", err));
+        })
+        .catch(err => console.error("Error fetching reviews:", err));
+    };
+
+    loadReviews();
+    window.addEventListener("review-submitted", loadReviews);
+    return () => window.removeEventListener("review-submitted", loadReviews);
   }, [filterProduct]);
 
   const handleSubmitReview = async (e: React.FormEvent) => {

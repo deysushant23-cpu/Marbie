@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { motion } from "framer-motion";
+import ReviewPromptPopup from "@/components/ReviewPromptPopup";
 
 interface Order {
   id: string;
@@ -23,6 +24,11 @@ export default function HistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const { customerUser } = useCart();
   const { data: session } = useSession();
+
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState<any>(null);
+  const [reviewProduct, setReviewProduct] = useState<string>("");
+  const [reviewImage, setReviewImage] = useState<string>("");
 
   useEffect(() => {
     const localHistory = JSON.parse(localStorage.getItem("orderHistory") || "[]");
@@ -311,6 +317,21 @@ export default function HistoryPage() {
                 >
                   DOWNLOAD INVOICE
                 </button>
+                {order.status && order.status.toUpperCase() === "DELIVERED" && (
+                  <button 
+                    className="btn-primary hover-scale" 
+                    onClick={() => {
+                      setReviewOrder(order);
+                      setReviewProduct(order.items?.[0]?.name || "Marbie Royal Jewelry");
+                      setReviewImage(order.items?.[0]?.image || "");
+                      setReviewModalOpen(true);
+                    }}
+                    style={{ width: "auto", padding: "12px 24px", backgroundColor: "#f59e0b", color: "#ffffff", border: "none", display: "flex", alignItems: "center", gap: "6px", boxShadow: "0 4px 12px rgba(245, 158, 11, 0.3)" }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: "'FILL' 1" }}>star</span>
+                    GIVE REVIEW
+                  </button>
+                )}
                 {(() => {
                   const status = (order.status || "").toUpperCase();
                   const isDispatched = ["SHIPPED", "DELIVERED", "DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY"].includes(status);
@@ -343,6 +364,14 @@ export default function HistoryPage() {
           ))}
         </div>
       )}
+
+      <ReviewPromptPopup
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        orderId={reviewOrder?.id || ""}
+        productName={reviewProduct}
+        productImage={reviewImage}
+      />
     </div>
   );
 }
