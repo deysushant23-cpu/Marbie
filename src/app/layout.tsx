@@ -16,10 +16,25 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600"],
 });
 
-export const metadata: Metadata = {
-  title: "Marbie Jewels | Timeless Elegance",
-  description: "Discover our exquisite collection of handcrafted heritage jewelry pieces. Sophistication begins here.",
-};
+import prisma from "@/lib/prisma";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let config;
+  try {
+    config = await prisma.siteConfig.findFirst();
+  } catch (error) {
+    console.error("Failed to fetch site config for metadata", error);
+  }
+
+  const storefront = config?.storefront as any;
+  const keywords = storefront?.seoKeywords || "jewelry, marbie jewels, heritage jewelry";
+
+  return {
+    title: "Marbie Jewels | Timeless Elegance",
+    description: "Discover our exquisite collection of handcrafted heritage jewelry pieces. Sophistication begins here.",
+    keywords: keywords,
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

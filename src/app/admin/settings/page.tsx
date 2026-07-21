@@ -166,6 +166,29 @@ export default function AdminSettings() {
           </div>
         </section>
         
+        {/* SEO Meta Settings */}
+        <section className="dashboard-card" style={{ padding: "32px", gridColumn: "1 / -1" }}>
+          <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--color-primary)", marginBottom: "24px" }}>
+            SEO & Meta Keywords
+          </h2>
+          <div className="form-group">
+            <label className="form-label">Search Keywords (Comma Separated)</label>
+            <textarea 
+              className="form-input" 
+              style={{ minHeight: "80px", resize: "vertical" }}
+              value={config.storefront?.seoKeywords || ""}
+              onChange={(e) => setConfig({ 
+                ...config, 
+                storefront: { ...config.storefront, seoKeywords: e.target.value } 
+              })}
+              placeholder="e.g. jewelry, kundan necklace, marbie jewels, bridal set"
+            />
+            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", marginTop: "12px" }}>
+              These keywords will be injected into the website's HTML &lt;head&gt; to help search engines understand and recommend your website.
+            </p>
+          </div>
+        </section>
+
         {/* Footer & Brand Settings */}
         <section className="dashboard-card" style={{ padding: "32px" }}>
           <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--color-primary)", marginBottom: "24px" }}>

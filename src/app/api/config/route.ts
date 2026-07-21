@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
         data: newConfig
       });
     }
+    
+    revalidatePath('/', 'layout');
     
     return NextResponse.json({ success: true, config: updatedConfig });
   } catch (error) {
